@@ -19,6 +19,15 @@ class PurposeController extends Controller
         return view('purposes.index', compact('purposes'));
     }
 
+    public function mypurpose()
+    {
+        // Fetch purposes for the authenticated user with their associated periods
+        $purposes = Purpose::with('period')->where('user_id', auth()->id())->get();
+        
+        // Return the index view with the purposes
+        return view('purposes.mypurpose', compact('purposes'));
+    }
+
     public function create()
     {
         // Fetch all periods and users to show in the create form

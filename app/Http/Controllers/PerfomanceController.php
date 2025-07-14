@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Purpose;
+use App\Models\Period;
+use App\Models\User; // Import the User model
+use App\Models\Performance;
 use Illuminate\Http\Request;
 
 class PerfomanceController extends Controller
@@ -13,7 +17,11 @@ class PerfomanceController extends Controller
      */
     public function index()
     {
-        //
+          // Fetch purposes for the authenticated user with their associated periods
+          $purposes = Purpose::with('period')->where('user_id', auth()->id())->get();
+        
+          // Return the index view with the purposes
+          return view('purposes.mypurpose', compact('purposes'));
     }
 
     /**
