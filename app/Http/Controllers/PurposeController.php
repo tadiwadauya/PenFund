@@ -19,14 +19,7 @@ class PurposeController extends Controller
         return view('purposes.index', compact('purposes'));
     }
 
-    public function mypurpose()
-    {
-        // Fetch purposes for the authenticated user with their associated periods
-        $purposes = Purpose::with('period')->where('user_id', auth()->id())->get();
-        
-        // Return the index view with the purposes
-        return view('purposes.mypurpose', compact('purposes'));
-    }
+  
 
     public function create()
     {
@@ -36,24 +29,8 @@ class PurposeController extends Controller
         return view('purposes.create', compact('periods', 'users'));
     }
 
-    public function store(Request $request)
-    {
-        // Validate the incoming request
-        $request->validate([
-            'user_id' => 'required|exists:users,id', // Validate the user_id
-            'purpose' => 'required|string|max:255',
-            'period_id' => 'required|exists:periods,id',
-        ]);
+    
 
-        // Create a new purpose with the selected user ID
-        Purpose::create([
-            'user_id' => $request->user_id, // Use the selected user ID
-            'purpose' => $request->purpose,
-            'period_id' => $request->period_id,
-        ]);
-
-        return redirect()->route('purposes.index')->with('success', 'Purpose created successfully.');
-    }
 
     public function show(Purpose $purpose)
     {

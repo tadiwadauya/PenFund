@@ -58,4 +58,12 @@ class ContractController extends Controller
 
     // Implement other methods (show, edit, update, destroy)
 
+    public function purposedestroy(Purpose $purpose)
+    {
+        // Delete the purpose
+        $purpose->delete();
+
+        return redirect()->route('purposes.mypurpose')->with('success', 'Purpose deleted successfully.');
+    }
+
 }
