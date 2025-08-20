@@ -47,6 +47,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('purposes/mypurpose', UserPurposeController::class);
 });
 
+
+
 Route::group(['middleware' => ['auth']], function() {
     Route::resource('departments', DepartmentController::class);
     Route::resource('sections', SectionController::class);

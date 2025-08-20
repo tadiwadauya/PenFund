@@ -53,6 +53,8 @@ class UserPurposeController extends Controller
         return redirect()->route('mypurpose.index')->with('success', 'Purpose created successfully.');
     }
 
+    
+
     public function show(Purpose $purpose)
     {
         // Ensure the purpose belongs to the authenticated user
@@ -65,32 +67,34 @@ class UserPurposeController extends Controller
 
     public function edit(Purpose $purpose)
     {
-        // Ensure the purpose belongs to the authenticated user
-        if ($purpose->user_id !== Auth::id()) {
-            abort(403); // Forbidden
-        }
-
         // Fetch all periods to show in the edit form
         $periods = Period::all();
         return view('purposes.mypurpose.edit', compact('purpose', 'periods'));
     }
 
+
+
     public function update(Request $request, Purpose $purpose)
     {
-        // Ensure the purpose belongs to the authenticated user
-        if ($purpose->user_id !== Auth::id()) {
-            abort(403); // Forbidden
-        }
-
         // Validate the incoming request
         $request->validate([
             'purpose' => 'required|string|max:255',
             'period_id' => 'required|exists:periods,id',
         ]);
-
+    
+        // Check if the period is already used by the user for another purpose (optional)
+        $existingPurpose = Purpose::where('user_id', Auth::id())
+            ->where('period_id', $request->period_id)
+            ->where('id', '!=', $purpose->id) // Exclude the current purpose being updated
+            ->first();
+    
+        if ($existingPurpose) {
+            return redirect()->back()->withErrors(['period_id' => 'You have already created a purpose for this period.'])->withInput();
+        }
+    
         // Update the purpose with the new data
         $purpose->update($request->all());
-
+    
         return redirect()->route('mypurpose.index')->with('success', 'Purpose updated successfully.');
     }
 
