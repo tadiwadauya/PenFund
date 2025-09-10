@@ -6,15 +6,48 @@ use App\Models\Objective;
 use App\Models\User;
 use App\Models\Period;
 use App\Models\Target;
+use App\Models\Department;
+use App\Models\Section;
 use Illuminate\Http\Request;
 
 class ObjectiveController extends Controller
 {
-    public function index()
-    {
-        $objectives = Objective::with(['user', 'period', 'target'])->get();
-        return view('objectives.index', compact('objectives'));
+    public function index(Request $request)
+{
+    $user = auth()->user();
+
+    // Check if the user is a departmental manager
+    $department = Department::where('manager', $user->id)->first();
+    // Check if the user is a section manager
+    $section = Section::where('manager', $user->id)->first();
+
+    // If not a manager at all
+    if (!$department && !$section) {
+        abort(403, 'You are not authorized to view this page.');
     }
+
+    // Build the list of users this manager can manage
+    $managedUsersQuery = User::query();
+    if ($department) {
+        $managedUsersQuery->orWhere('department', $department->department);
+    }
+    if ($section) {
+        $managedUsersQuery->orWhere('section', $section->section);
+    }
+    $managedUsers = $managedUsersQuery->get();
+
+    // Filtered objectives: only load if a user has been selected
+    $objectives = collect(); // empty collection by default
+    if ($request->filled('selected_user')) {
+        $objectives = Objective::with(['user', 'period', 'target'])
+            ->where('user_id', $request->selected_user)
+            ->get();
+    }
+
+    return view('objectives.index', compact('objectives', 'managedUsers'));
+}
+
+    
 
     
     // Show the form for creating a new objective
@@ -39,7 +72,7 @@ class ObjectiveController extends Controller
 
         Objective::create($request->all());
 
-        return redirect()->route('objectives.index')->with('success', 'Objective created successfully.');
+        return redirect()->route('objectives.myobjective')->with('success', 'Objective created successfully.');
     }
 
     // Display the specified objective

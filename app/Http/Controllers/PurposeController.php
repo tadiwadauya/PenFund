@@ -6,18 +6,48 @@ use App\Models\Purpose;
 use App\Models\Period;
 use App\Models\User; // Import the User model
 use Illuminate\Http\Request;
+use App\Models\Department;
+use App\Models\Section;
 use Illuminate\Support\Facades\Auth;
 
 class PurposeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch all purposes with their associated periods and users
-        $purposes = Purpose::with('period', 'user')->get();
-        
-        // Return the index view with the purposes
-        return view('purposes.index', compact('purposes'));
+        $user = auth()->user();
+    
+        // Check if the user is a departmental manager
+        $department = Department::where('manager', $user->id)->first();
+    
+        // Check if the user is a section manager
+        $section = Section::where('manager', $user->id)->first();
+    
+        // If not a manager at all
+        if (!$department && !$section) {
+            abort(403, 'You are not authorized to view this page.');
+        }
+    
+        // Build the list of users this manager can manage
+        $managedUsersQuery = User::query();
+        if ($department) {
+            $managedUsersQuery->orWhere('department', $department->department);
+        }
+        if ($section) {
+            $managedUsersQuery->orWhere('section', $section->section);
+        }
+        $managedUsers = $managedUsersQuery->get();
+    
+        // Purposes are loaded only if a user is selected
+        $purposes = collect(); // empty by default
+        if ($request->filled('selected_user')) {
+            $purposes = Purpose::with('period', 'user')
+                ->where('user_id', $request->selected_user)
+                ->get();
+        }
+    
+        return view('purposes.index', compact('purposes', 'managedUsers'));
     }
+    
 
   
 

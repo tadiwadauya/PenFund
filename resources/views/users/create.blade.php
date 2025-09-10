@@ -140,7 +140,7 @@
 </div>
 <div class="col-xs-2 col-sm-2 col-md-2">
     <div class="form-group">
-        <strong>Role:</strong> {!! Form::select('is_admin', ['' => 'Select Role', '0' => 'Admin', '1' => 'User'], null, ['class' => 'form-control']) !!}
+        <strong>Role:</strong> {!! Form::select('is_admin', ['' => 'Select Role', '1' => 'Admin', '0' => 'User'], null, ['class' => 'form-control']) !!}
     </div>
 </div>
 

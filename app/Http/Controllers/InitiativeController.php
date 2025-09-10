@@ -7,15 +7,48 @@ use App\Models\User;
 use App\Models\Period;
 use App\Models\Target;
 use App\Models\Initiative;
+use App\Models\Department;
+use App\Models\Section;
 use Illuminate\Http\Request;
 
 class InitiativeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $initiatives = Initiative::with(['user', 'period', 'target','objective'])->get();
-        return view('initiatives.index', compact('initiatives'));
+        $user = auth()->user();
+    
+        // Check if the user is a departmental manager
+        $department = Department::where('manager', $user->id)->first();
+    
+        // Check if the user is a section manager
+        $section = Section::where('manager', $user->id)->first();
+    
+        // If not a manager at all
+        if (!$department && !$section) {
+            abort(403, 'You are not authorized to view this page.');
+        }
+    
+        // Build the list of users this manager can manage
+        $managedUsersQuery = User::query();
+        if ($department) {
+            $managedUsersQuery->orWhere('department', $department->department);
+        }
+        if ($section) {
+            $managedUsersQuery->orWhere('section', $section->section);
+        }
+        $managedUsers = $managedUsersQuery->get();
+    
+        // Initiatives are loaded only if a user is selected
+        $initiatives = collect(); // empty collection
+        if ($request->filled('selected_user')) {
+            $initiatives = Initiative::with(['user', 'period', 'target', 'objective'])
+                ->where('user_id', $request->selected_user)
+                ->get();
+        }
+    
+        return view('initiatives.index', compact('initiatives', 'managedUsers'));
     }
+    
 
     
     // Show the form for creating a new Initiative
@@ -42,7 +75,7 @@ class InitiativeController extends Controller
 
         Initiative::create($request->all());
 
-        return redirect()->route('initiatives.index')->with('success', 'initiative created successfully.');
+        return redirect()->route('initiatives.index')->with('success', 'Actions created successfully.');
     }
 
     // Display the specified Initiative

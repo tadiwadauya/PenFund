@@ -14,6 +14,7 @@ use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PerfomanceController;
 use App\Http\Controllers\UserPurposeController;
+use App\Http\Controllers\ManagerDashboardController;
 
 
 
@@ -47,8 +48,16 @@ Route::get('/mypurpose', [ContractController::class, 'mypurpose'])->name('purpos
 Route::middleware(['auth'])->group(function () {
     Route::resource('purposes/mypurpose', UserPurposeController::class);
 });
+Route::middleware(['auth'])->group(function () {
 
 
+    Route::get('/manager/users', [ManagerDashboardController::class, 'index'])->name('manager.users.index');
+    Route::get('/manager/users/{user}', [ManagerDashboardController::class, 'show'])->name('manager.users.show');
+    
+    Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
+    Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
+
+   });
 
 Route::group(['middleware' => ['auth']], function() {
     Route::resource('departments', DepartmentController::class);

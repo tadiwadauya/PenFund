@@ -38,15 +38,18 @@
         @csrf
         <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group">
-        <label for="user_id">Select User:</label>
-        <select name="user_id" class="form-control select2" required>
-            @foreach ($users as $user)
-                <option value="{{ $user->id }}">{{ $user->name }}</option>
-            @endforeach
+    <div class="form-group">
+        <label for="user_id">User:</label>
+        <select id="user_id" class="form-control select2" disabled>
+            <option value="{{ auth()->user()->id }}" selected>
+                {{ auth()->user()->name }}
+            </option>
         </select>
-        </div>   
-    </div>
+        <!-- Hidden input so the authenticated user_id is actually submitted -->
+        <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+    </div>   
+</div>
+
     
     <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">

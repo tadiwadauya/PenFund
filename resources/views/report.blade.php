@@ -11,7 +11,12 @@
 <section class="content">
 <div class="container-fluid">
     <div class="row">
+        
         <div class="col-lg-12 margin-tb">
+        <br>
+        <a href="{{ url('objectives') }}" class="btn btn-info  ml-auto">Objectives</a>
+    <a href="{{ url('purposes') }}" class="btn btn-info ml-auto">Purpose</a>
+    <a href="{{ url('report') }}" class="btn btn-info ml-auto">Perfomance Target Report</a>
             <div class="pull-left">
     <h1>Generate Report</h1>
     </div>
