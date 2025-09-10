@@ -20,6 +20,7 @@
                             <a href="{{ route('mypurpose.create') }}" class="btn btn-primary ml-auto">Create New Purpose</a>
                             <a href="{{ url('myobjective') }}" class="btn btn-info ml-auto">My Objectives</a>
                             <a href="{{ url('myinitiative') }}" class="btn btn-info  ml-auto">Actions to support objectives</a>
+                            <a href="{{ url('myreport') }}" class="btn btn-info ml-auto">My Perfomance Target Report</a>
                         </div>
                     </div>
                 </div>

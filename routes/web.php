@@ -64,6 +64,7 @@ Route::group(['middleware' => ['auth']], function() {
     
     Route::resource('initiatives', InitiativeController::class);
     Route::get('/report', [ReportController::class, 'create'])->name('report.create');
+    Route::get('/myreport', [ReportController::class, 'mycreate'])->name('report.mycreate');
 Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
 
 

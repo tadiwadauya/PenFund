@@ -20,6 +20,13 @@ class ReportController extends Controller
         return view('report', compact('users', 'periods'));
     }
 
+    public function mycreate()
+    {
+        $users = User::all();
+        $periods = Period::all();
+        return view('myreport', compact('users', 'periods'));
+    }
+
     public function generate(Request $request)
     {
         $request->validate([

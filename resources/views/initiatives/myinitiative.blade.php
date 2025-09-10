@@ -18,8 +18,8 @@
     <div class="pull-right">
     <a href="{{ route('initiatives.create') }}" class="btn btn-primary  ml-auto">Create Action to Support Objectives</a>
     <a href="{{ url('myobjective') }}" class="btn btn-info  ml-auto">My Objectives</a>
-    <a href="{{ url('purposes/mypurpose') }}" class="btn btn-primary ml-auto">My Purpose</a>
-    
+    <a href="{{ url('purposes/mypurpose') }}" class="btn btn-info ml-auto">My Purpose</a>
+    <a href="{{ url('myreport') }}" class="btn btn-info ml-auto">My Perfomance Target Report</a>
     </div>
     
         </div>
