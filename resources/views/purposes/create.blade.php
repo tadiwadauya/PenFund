@@ -38,15 +38,28 @@
         @csrf
         <div class="row">
         <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group">
+    <div class="form-group">
         <label for="user_id">Select User:</label>
-        <select name="user_id" class="form-control select2" required>
-            @foreach ($users as $user)
-                <option value="{{ $user->id }}">{{ $user->name }}</option>
-            @endforeach
-        </select>
-        </div>   
+
+        @if(auth()->user()->is_admin)
+            <!-- Admin can select any user -->
+            <select name="user_id" class="form-control select2" required>
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+            </select>
+        @else
+            <!-- Normal user: dropdown disabled and prefilled -->
+            <select name="user_id" class="form-control" disabled>
+                <option value="{{ auth()->user()->id }}" selected>
+                    {{ auth()->user()->name }}
+                </option>
+            </select>
+            <!-- Hidden input to still send user_id -->
+            <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+        @endif
     </div>
+</div>
     <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
         <label for="purpose">Purpose:</label>

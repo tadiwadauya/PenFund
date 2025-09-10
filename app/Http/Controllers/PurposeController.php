@@ -43,14 +43,14 @@ class PurposeController extends Controller
         // Fetch all periods and users to show in the edit form
         $periods = Period::all(); // Fetch all periods
         $users = User::all(); // Fetch all users
-        return view('purposes.edit', compact('purpose', 'periods', 'users'));
+        return view('purposes.edit', compact('purpose', 'periods'));
     }
 
     public function update(Request $request, Purpose $purpose)
 {
     // Validate the incoming request
     $request->validate([
-        'user_id' => 'required|exists:users,id', // Validate the user_id
+      
         'purpose' => 'required|string|max:255',
         'period_id' => 'required|exists:periods,id',
     ]);
@@ -58,7 +58,7 @@ class PurposeController extends Controller
     // Update the purpose with the new data
     $purpose->update($request->all());
 
-    return redirect()->route('purposes.index')->with('success', 'Purpose updated successfully.');
+    return redirect()->route('mypurpose.index')->with('success', 'Purpose updated successfully.');
 }
     public function destroy(Purpose $purpose)
     {

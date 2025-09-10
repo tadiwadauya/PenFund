@@ -17,14 +17,13 @@
                             <h1>Edit Purpose</h1>
                         </div>
                         <div class="pull-right">
-                            <a class="btn btn-primary" href="{{ route('mypurpose.index') }}"> Back</a>
-                        </div>
+                     </div>
                     </div>
                 </div>
 
                 <div class="card card-default">
                     <div class="card-body">
-                        <form action="{{ route('mypurpose.update', $purpose) }}" method="POST">
+                    <form action="{{ route('purposes.update', $purpose) }}" method="POST">
                             @csrf
                             @method('PUT') <!-- This indicates that this is a PUT request -->
 

@@ -13,12 +13,12 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-    <h1>My initiatives</h1>
+    <h1>Actions to Support Objectives</h1>
     </div>
     <div class="pull-right">
-    <a href="{{ route('initiatives.create') }}" class="btn btn-primary  ml-auto">Create New initiative</a>
-    <a href="{{ url('myobjective') }}" class="btn btn-info  ml-auto">Objectives</a>
-    <a href="{{ url('mypurpose') }}" class="btn btn-info  ml-auto">Purpose</a>
+    <a href="{{ route('initiatives.create') }}" class="btn btn-primary  ml-auto">Create Action to Support Objectives</a>
+    <a href="{{ url('myobjective') }}" class="btn btn-info  ml-auto">My Objectives</a>
+    <a href="{{ url('purposes/mypurpose') }}" class="btn btn-primary ml-auto">My Purpose</a>
     
     </div>
     
@@ -30,14 +30,14 @@
 
     @if($initiatives->isEmpty())
         <div class="alert alert-info">
-            <p>You have no initiatives to display.</p>
+            <p>You have no Actions to Support Objectives to display.</p>
         </div>
     @else
         <table class="table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>initiative</th>
+                    <th>Actions to Support Objectives</th>
                     <th>Target</th>
                     <th>Objective</th>
                     <th>Period</th>
@@ -55,7 +55,7 @@
                         <td>{{ $initiative->period->year }}</td>
                         <td>{{ $initiative->created_at->format('d-m-Y H:i') }}</td>
                         <td>
-                            <a href="{{ route('initiatives.edit', $initiative->id) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ route('initiatives.edit', $initiative->id) }}" class="btn btn-warning">Edit</a>
                             <form action="{{ route('initiatives.destroy', $initiative->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')

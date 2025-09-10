@@ -18,8 +18,8 @@
                         </div>
                         <div class="pull-right">
                             <a href="{{ route('mypurpose.create') }}" class="btn btn-primary ml-auto">Create New Purpose</a>
-                            <a href="{{ route('mypurpose.create') }}" class="btn btn-info ml-auto">My Objectives</a>
-                            <a href="{{ route('mypurpose.create') }}" class="btn btn-info ml-auto">My Actions to support objectives</a>
+                            <a href="{{ url('myobjective') }}" class="btn btn-info ml-auto">My Objectives</a>
+                            <a href="{{ url('myinitiative') }}" class="btn btn-info  ml-auto">Actions to support objectives</a>
                         </div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                                     <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
                                     <td>
                                         <a href="{{ route('mypurpose.show', $purpose) }}" class="btn btn-info">View</a>
-                                        <a href="{{ route('mypurpose.edit', $purpose) }}" class="btn btn-warning">Edit</a>
+                                        <a href="{{ route('purposes.edit', $purpose) }}" class="btn btn-warning">Edit</a>
                                         <form action="{{ route('mypurpose.destroy', $purpose) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')

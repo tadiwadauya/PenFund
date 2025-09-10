@@ -40,6 +40,7 @@ Route::get('home', [App\Http\Controllers\HomeController::class, 'index'])->name(
 Route::get('admin-home', [App\Http\Controllers\HomeController::class, 'admin'])->name('admin-home');
 Route::get('/myobjective', [ContractController::class, 'myobjective'])->name('objectives.myobjective');
 Route::get('/myinitiative', [ContractController::class, 'myinitiative'])->name('initiatives.myinitiative');
+Route::get('/mypurpose', [ContractController::class, 'mypurpose'])->name('purposes.mypurpose');
 
 
 

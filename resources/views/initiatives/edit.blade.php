@@ -16,7 +16,7 @@
             <h1>Edit Action To Support Objective</h1>
         </div>
         <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('initiatives.index') }}"> Back</a>
+            <a class="btn btn-primary" href="{{ url('myinitiative') }}"> Back</a>
         </div>
     </div>
 </div>

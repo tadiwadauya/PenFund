@@ -16,7 +16,7 @@
     <h1>Edit objective</h1>
     </div>
         <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('objectives.index') }}"> Back</a>
+            <a class="btn btn-primary" href="{{ url('myobjective') }}"> Back</a>
         </div>
     </div>
 </div>
@@ -36,18 +36,7 @@
     </div>
 @endif
 <div class="row">
-        <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group">
-        <label for="user_id">Select User:</label>
-        <select name="user_id" class="form-control select2" required>
-            @foreach ($users as $user)
-                <option value="{{ $user->id }}" {{ $user->id == $objective->user_id ? 'selected' : '' }}>
-                    {{ $user->name }}
-                </option>
-            @endforeach
-        </select>
-        </div>   
-    </div>
+   
     <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
 

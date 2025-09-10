@@ -65,7 +65,7 @@ class InitiativeController extends Controller
     public function update(Request $request, Initiative $initiative)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+           
             'period_id' => 'required|exists:periods,id',
             'target_id' => 'required|exists:targets,id',
             'objective_id' => 'required|string',
@@ -73,7 +73,7 @@ class InitiativeController extends Controller
 
         $initiative->update($request->all());
 
-        return redirect()->route('initiatives.index')->with('success', 'Initiative updated successfully.');
+        return redirect()->route('initiatives.myinitiative')->with('success', 'Initiative updated successfully.');
     }
 
     // Remove the specified Initiative from storage

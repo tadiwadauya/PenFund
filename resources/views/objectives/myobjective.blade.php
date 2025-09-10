@@ -18,7 +18,7 @@
     <div class="pull-right">
     <a href="{{ route('objectives.create') }}" class="btn btn-primary  ml-auto">Create New objective</a>
     <a href="{{ url('myinitiative') }}" class="btn btn-info  ml-auto">Actions to support objectives</a>
-    <a href="{{ url('mypurpose') }}" class="btn btn-info  ml-auto">Purpose</a>
+    <a href="{{ url('purposes/mypurpose') }}" class="btn btn-primary ml-auto">My Purpose</a>
     
     </div>
     
@@ -53,7 +53,7 @@
                         <td>{{ $objective->period->year }}</td>
                         <td>{{ $objective->created_at->format('d-m-Y H:i') }}</td>
                         <td>
-                            <a href="{{ route('objectives.edit', $objective->id) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ route('objectives.edit', $objective->id) }}" class="btn btn-warning">Edit</a>
                             <form action="{{ route('objectives.destroy', $objective->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')

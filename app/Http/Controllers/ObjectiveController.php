@@ -61,11 +61,10 @@ class ObjectiveController extends Controller
     public function update(Request $request, Objective $objective)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
             'period_id' => 'required|exists:periods,id',
             'target_id' => 'required|exists:targets,id',
             'objective' => 'required|string',
-            'actions' => 'nullable|string',
+            'actions'   => 'nullable|string',
             'half_year_comment' => 'nullable|string',
             'annual_comment' => 'nullable|string',
             'half_year_rating' => 'nullable|string',
@@ -74,7 +73,7 @@ class ObjectiveController extends Controller
 
         $objective->update($request->all());
 
-        return redirect()->route('objectives.index')->with('success', 'Objective updated successfully.');
+        return redirect()->route('objectives.myobjective')->with('success', 'Objective updated successfully.');
     }
 
     // Remove the specified objective from storage
