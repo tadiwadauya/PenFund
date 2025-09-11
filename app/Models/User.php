@@ -55,7 +55,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
     public function approvals()
-{
-    return $this->hasMany(Approval::class);
-}
+    {
+        return $this->hasMany(Approval::class);
+    }
 }

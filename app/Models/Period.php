@@ -39,4 +39,10 @@ class Period extends Model
 {
     return $this->objectives()->avg('annual_rating');
 }
+
+public function approvals()
+{
+    return $this->hasMany(Approval::class);
+}
+
 }

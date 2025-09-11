@@ -129,7 +129,48 @@
         </div>
         <button type="submit" class="btn btn-primary">Generate Report</button>
     </form>
+    {{-- Approval Actions --}}
+<hr>
+<h3>Approval Actions</h3>
 
+{{-- Approve Button --}}
+<form method="POST" action="{{ route('manager.users.approve', [$user->id, $purposes->first()->period_id ?? 1]) }}" style="display:inline;">
+    @csrf
+    <button type="submit" class="btn btn-success">Approve</button>
+</form>
+
+{{-- Reject Button (Triggers Modal) --}}
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal">
+    Reject
+</button>
+
+{{-- Reject Modal --}}
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form method="POST" action="{{ route('manager.users.reject', [$user->id, $purposes->first()->period_id ?? 1]) }}">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectModalLabel">Confirm Rejection</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to reject this user’s performance data?</p>
+          <div class="form-group">
+              <label for="comment">Rejection Comment</label>
+              <textarea name="comment" id="comment" class="form-control" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Confirm Reject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 </div>
 </section>
 </div>

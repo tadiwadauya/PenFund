@@ -54,10 +54,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/manager/users', [ManagerDashboardController::class, 'index'])->name('manager.users.index');
     Route::get('/manager/users/{user}', [ManagerDashboardController::class, 'show'])->name('manager.users.show');
     
+    // New approval routes
+    Route::post('/manager/users/{user}/approve/{period}', [ManagerDashboardController::class, 'approve'])->name('manager.users.approve');
+    Route::post('/manager/users/{user}/reject/{period}', [ManagerDashboardController::class, 'reject'])->name('manager.users.reject');
+
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
     Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
 
+
+    Route::get('/my/performance', [UserPerformanceController::class, 'index'])->name('user.performance.index');
+    Route::get('/my/performance/{period}', [UserPerformanceController::class, 'show'])->name('user.performance.show');
+    Route::post('/my/performance/submit/{period}', [UserPerformanceController::class, 'submitForApproval'])->name('user.performance.submit');
    });
+
+   
 
 Route::group(['middleware' => ['auth']], function() {
     Route::resource('departments', DepartmentController::class);
