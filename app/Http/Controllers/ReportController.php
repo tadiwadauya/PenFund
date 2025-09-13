@@ -33,36 +33,27 @@ class ReportController extends Controller
             'user_id' => 'required|exists:users,id',
             'period_id' => 'required|exists:periods,id',
         ]);
-    
-        $user = User::find($request->user_id);
+
+        $user = User::findOrFail($request->user_id);
+
+        // Fetch purposes for the user
         $purposes = Purpose::where('user_id', $user->id)
             ->where('period_id', $request->period_id)
             ->get();
-    
-        // Get user's department to find the manager
-        $department = Department::where('department', $user->department)->first();
-        $manager = null;
-        $managerJobTitle = null;
-        $managerGrade = null;
-    
-        if ($department && $department->manager) {
-            // Fetch the manager's details
-            $manager = User::find($department->manager);
-            if ($manager) {
-                $managerJobTitle = $manager->jobtitle;
-                $managerGrade = $manager->grade;
-            }
-        }
-    
-        // Fetch targets, objectives, and initiatives
-        $targets = Target::all();
+
+        // Fetch objectives (with initiatives + target)
         $objectives = Objective::where('user_id', $user->id)
             ->where('period_id', $request->period_id)
-            ->with('initiatives') // Eager load initiatives
+            ->with(['initiatives', 'target']) // Ensure initiatives and targets are loaded
             ->get();
-    
+
+        // Other logic...
+
         // Generate PDF
-        $pdf = PDF::loadView('pdf.report', compact('user', 'purposes', 'managerJobTitle', 'managerGrade', 'targets', 'objectives'));
-        return $pdf->download('report.pdf');
+        $pdf = PDF::loadView('pdf.report', compact(
+            'user', 'purposes', 'objectives' // Pass objectives directly
+        ));
+
+        return $pdf->download('performance_contract.pdf');
     }
 }

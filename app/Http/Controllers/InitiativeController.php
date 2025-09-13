@@ -54,29 +54,38 @@ class InitiativeController extends Controller
     // Show the form for creating a new Initiative
     public function create()
     {
-        $users = User::all();
-        $periods = Period::all();
+        // only list objectives that belong to the logged-in user for the selected period
+        $objectives = Objective::where('user_id', auth()->id())->get();
         $targets = Target::all();
-        $objectives = Objective::all();
-        return view('initiatives.create', compact('users', 'periods', 'targets','objectives'));
+    
+        return view('initiatives.create', compact('objectives', 'targets'));
     }
 
     // Store a newly created initiative in storage
     public function store(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'period_id' => 'required|exists:periods,id',
-            'target_id' => 'required|exists:targets,id',
-            'initiative' => 'required|string',
-            'objective_id'=>'required|string',
-            
-        ]);
+{
+    $request->validate([
+        'objective_id' => 'required|exists:objectives,id',
+        'target_id'    => 'required|exists:targets,id',
+        'initiative'   => 'required|string',
+        'budget'       => 'nullable|string',
+    ]);
 
-        Initiative::create($request->all());
+    // ✅ get the objective so we inherit its user + period
+    $objective = Objective::findOrFail($request->objective_id);
 
-        return redirect()->route('initiatives.index')->with('success', 'Actions created successfully.');
-    }
+    $objective->initiatives()->create([
+        'user_id'    => $objective->user_id,   // always matches objective’s user
+        'period_id'  => $objective->period_id, // always matches objective’s period
+        'target_id'  => $request->target_id,
+        'initiative' => $request->initiative,
+        'budget'     => $request->budget,
+        'createdby'  => auth()->user()->name,
+    ]);
+
+    return redirect()->route('user.performance.index')
+        ->with('success', 'Action created successfully.');
+}
 
     // Display the specified Initiative
     public function show(Initiative $initiative)
@@ -106,14 +115,20 @@ class InitiativeController extends Controller
 
         $initiative->update($request->all());
 
-        return redirect()->route('initiatives.myinitiative')->with('success', 'Initiative updated successfully.');
+        return redirect()->route('user.performance.index')->with('success', 'Initiative updated successfully.');
     }
 
     // Remove the specified Initiative from storage
     public function destroy(Initiative $initiative)
     {
+        // Get the user ID associated with the initiative
+        $userId = $initiative->user_id; // Ensure this field exists in the initiatives table
+        $periodId = $initiative->period_id; // Retrieve the period ID associated with the initiative
+    
+        // Delete the initiative
         $initiative->delete();
-
-        return redirect()->route('initiatives.index')->with('success', 'Initiative deleted successfully.');
+    
+        // Redirect to the specific user's performance page with a success message
+        return redirect()->route('user.performance.show', ['period' => $periodId])->with('success', 'Initiative deleted successfully.');
     }
 }

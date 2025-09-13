@@ -22,10 +22,7 @@ public function period()
 {
     return $this->belongsTo(Period::class);
 }
-public function target()
-{
-    return $this->belongsTo(Target::class);
-}
+
 
 
 public function user()
@@ -33,8 +30,15 @@ public function user()
     return $this->belongsTo(User::class);
 }
     
+
 public function initiatives()
 {
-    return $this->hasMany(Initiative::class, 'objective_id');
+    return $this->hasMany(Initiative::class, 'objective_id', 'id');
 }
+
+public function target()
+{
+    return $this->belongsTo(Target::class, 'target_id', 'id');
+}
+
 }

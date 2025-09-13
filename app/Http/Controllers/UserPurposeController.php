@@ -50,7 +50,7 @@ class UserPurposeController extends Controller
         ]);
         
         // Redirect to the index route for the user's purposes
-        return redirect()->route('mypurpose.index')->with('success', 'Purpose created successfully.');
+        return redirect()->route('user.performance.index')->with('success', 'Purpose created successfully.');
     }
 
     

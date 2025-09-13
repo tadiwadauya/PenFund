@@ -38,7 +38,7 @@
         <td>
             <ul>
                 @foreach($purposes as $purpose)
-                    {{ $purpose->purpose }}
+                    <li>{{ $purpose->purpose }}</li>
                 @endforeach
             </ul>
         </td>
@@ -54,26 +54,35 @@
     </tr>
 </table>
 
-
-@foreach($targets as $target)
-    <h3>{{ $target->target_name }}</h3>
+{{-- Loop objectives and initiatives directly --}}
+@foreach($objectives as $objective)
+    <h3>{{ $objective->target->target_name ?? 'No Target' }}</h3>
     <table>
         <tr>
             <th><strong>Objective</strong></th>
             <th><strong>Actions to Support Objectives</strong></th>
             <th><strong>Target/ Budget</strong></th>
         </tr>
-        @foreach($objectives->where('target_id', $target->id) as $objective)
-            @foreach($objective->initiatives as $initiative)
-                <tr>
-                    <td>{{ $objective->objective }}</td>
-                    <td>{{ $initiative->initiative }}</td>
-                    <td>{{ $initiative->budget }}</td>
-                </tr>
-            @endforeach
-        @endforeach
+
+        @forelse($objective->initiatives as $initiative)
+            <tr>
+                <td>{{ $objective->objective }}</td>
+                <td>{{ $initiative->initiative }}</td>
+                <td>{{ $initiative->budget }}</td>
+            </tr>
+        @empty
+            <tr>
+                <td>{{ $objective->objective }}</td>
+                <td colspan="2">No initiatives added</td>
+            </tr>
+        @endforelse
     </table>
 @endforeach
+
+{{-- If no objectives at all --}}
+@if($objectives->isEmpty())
+    <p><em>No objectives available for this period.</em></p>
+@endif
 
 </body>
 </html>

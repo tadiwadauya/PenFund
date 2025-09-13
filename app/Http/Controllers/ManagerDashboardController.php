@@ -27,12 +27,17 @@ class ManagerDashboardController extends Controller
         }
     
         $managedUsersQuery = User::query();
+    
         if ($department) {
             $managedUsersQuery->orWhere('department', $department->department);
         }
+    
         if ($section) {
             $managedUsersQuery->orWhere('section', $section->section);
         }
+    
+        // ✅ Exclude the currently authenticated user
+        $managedUsersQuery->where('id', '!=', $user->id);
     
         // ✅ Only include users with "Pending" approval
         $managedUsers = $managedUsersQuery
@@ -43,6 +48,7 @@ class ManagerDashboardController extends Controller
     
         return view('manager.users', compact('managedUsers'));
     }
+    
     
     public function approve(User $user, $periodId)
 {

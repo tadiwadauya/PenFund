@@ -15,6 +15,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PerfomanceController;
 use App\Http\Controllers\UserPurposeController;
 use App\Http\Controllers\ManagerDashboardController;
+use App\Http\Controllers\UserPerformanceController;
+use App\Http\Controllers\PerformanceApraisalController;
 
 
 
@@ -65,6 +67,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my/performance', [UserPerformanceController::class, 'index'])->name('user.performance.index');
     Route::get('/my/performance/{period}', [UserPerformanceController::class, 'show'])->name('user.performance.show');
     Route::post('/my/performance/submit/{period}', [UserPerformanceController::class, 'submitForApproval'])->name('user.performance.submit');
+
+    Route::get('/my/performanceapraisal', [PerformanceApraisalController::class, 'index'])->name('user.performanceapraisal.index');
+    Route::get('/my/performanceapraisal/{period}', [PerformanceApraisalController::class, 'show'])->name('user.performanceapraisal.show');
+    Route::post('/my/performanceapraisal/submit/{period}', [PerformanceApraisalController::class, 'submitForApproval'])->name('user.performanceapraisal.submit');
+  
    });
 
    

@@ -16,7 +16,7 @@
     <h1>Edit objective</h1>
     </div>
         <div class="pull-right">
-            <a class="btn btn-primary" href="{{ url('myobjective') }}"> Back</a>
+            <a class="btn btn-primary" href="{{ route('user.performance.index') }}"> Back</a>
         </div>
     </div>
 </div>

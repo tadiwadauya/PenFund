@@ -22,11 +22,6 @@ class Period extends Model
     /**
      * Get the objectives associated with the period.
      */
-    public function objectives(): HasMany
-    {
-        return $this->hasMany(Objective::class);
-    }
-
     /**
      * Get the ratings associated with the period.
      */
@@ -42,7 +37,19 @@ class Period extends Model
 
 public function approvals()
 {
-    return $this->hasMany(Approval::class);
+    return $this->hasMany(\App\Models\Approval::class);
+}
+public function initiatives()
+{
+    return $this->hasMany(\App\Models\Initiative::class);
+}
+public function purposes()
+{
+    return $this->hasMany(\App\Models\Purpose::class);
 }
 
+public function objectives()
+{
+    return $this->hasMany(\App\Models\Objective::class);
+}
 }

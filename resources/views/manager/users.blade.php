@@ -8,7 +8,7 @@
 <section class="content">
 <div class="container-fluid">
 
-    <h1>Managed Users</h1>
+    <h1>Manage Department Perfomance Targets</h1>
 
     <table class="table table-bordered table-striped">
         <thead>

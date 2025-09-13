@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('period_id')->constrained()->onDelete('cascade');
             $table->foreignId('target_id')->constrained()->onDelete('cascade');
-            $table->text('objective_id')->constrained()->onDelete('cascade');
+            $table->foreignId('objective_id')->constrained()->onDelete('cascade');
             $table->text('budget')->nullable();
             $table->text('initiative')->nullable();
             $table->text('approvedby')->nullable();

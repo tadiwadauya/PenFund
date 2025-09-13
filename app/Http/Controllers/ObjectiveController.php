@@ -72,7 +72,7 @@ class ObjectiveController extends Controller
 
         Objective::create($request->all());
 
-        return redirect()->route('objectives.myobjective')->with('success', 'Objective created successfully.');
+        return redirect()->route('user.performance.index')->with('success', 'Objective created successfully.');
     }
 
     // Display the specified objective
@@ -106,7 +106,7 @@ class ObjectiveController extends Controller
 
         $objective->update($request->all());
 
-        return redirect()->route('objectives.myobjective')->with('success', 'Objective updated successfully.');
+        return redirect()->route('user.performance.index')->with('success', 'Objective updated successfully.');
     }
 
     // Remove the specified objective from storage

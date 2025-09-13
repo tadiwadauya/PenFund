@@ -19,21 +19,23 @@ class Initiative extends Model
     ];
     
     // Define relationships if needed
-    public function period()
-    {
-        return $this->belongsTo(Period::class);
-    }
-    public function target()
-    {
-        return $this->belongsTo(Target::class);
-    }
-    
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    public function period()
+    {
+        return $this->belongsTo(Period::class);
+    }
+
+    public function target()
+    {
+        return $this->belongsTo(Target::class);
+    }
+
     public function objective()
     {
-        return $this->belongsTo(Objective::class, 'objective_id');
+        return $this->belongsTo(Objective::class);
     }
 }
