@@ -45,6 +45,8 @@ class PerformanceApraisalController extends Controller
         return view('user.performanceapraisal.show', compact('period', 'purposes', 'objectives', 'initiatives', 'authorisation'));
     }
 
+    
+
     // Submit for Authorisation
 
     public function submitForAuthorisation($periodId)

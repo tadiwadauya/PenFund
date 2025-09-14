@@ -16,6 +16,9 @@ class Initiative extends Model
         'objective_id',
         'initiative',
         'budget',
+        'rating',
+        'comment',
+        'archieved',
     ];
     
     // Define relationships if needed
@@ -38,4 +41,9 @@ class Initiative extends Model
     {
         return $this->belongsTo(Objective::class);
     }
+
+    /**
+     * Accessor for human-readable rating label.
+     */
+   
 }

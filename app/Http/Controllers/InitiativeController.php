@@ -118,6 +118,25 @@ class InitiativeController extends Controller
         return redirect()->route('user.performance.index')->with('success', 'Initiative updated successfully.');
     }
 
+    public function updateInline(Request $request, $id)
+    {
+        $request->validate([
+            'archieved' => 'required|boolean',   // must be 0 or 1
+            'rating'    => 'nullable|integer|min:1|max:6',
+            'comment'   => 'nullable|string|max:1000',
+        ]);
+    
+        $initiative = Initiative::findOrFail($id);
+    
+        $initiative->update([
+            'archieved' => $request->input('archieved', 0), // default 0
+            'rating'    => $request->input('rating'),
+            'comment'   => $request->input('comment'),
+        ]);
+    
+        return redirect()->back()->with('success', 'Initiative updated successfully.');
+    }
+    
     // Remove the specified Initiative from storage
     public function destroy(Initiative $initiative)
     {
@@ -131,4 +150,5 @@ class InitiativeController extends Controller
         // Redirect to the specific user's performance page with a success message
         return redirect()->route('user.performance.show', ['period' => $periodId])->with('success', 'Initiative deleted successfully.');
     }
+    
 }

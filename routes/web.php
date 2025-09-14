@@ -62,6 +62,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
     Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
+    Route::post('/appraisalreport/apgenerate', [ReportController::class, 'apgenerate'])->name('appraisalreport.apgenerate');
 
 
     Route::get('/my/performance', [UserPerformanceController::class, 'index'])->name('user.performance.index');
@@ -71,8 +72,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my/performanceapraisal', [PerformanceApraisalController::class, 'index'])->name('user.performanceapraisal.index');
     Route::get('/my/performanceapraisal/{period}', [PerformanceApraisalController::class, 'show'])->name('user.performanceapraisal.show');
     Route::post('/my/performanceapraisal/submit/{period}', [PerformanceApraisalController::class, 'submitForApproval'])->name('user.performanceapraisal.submit');
-  
-   });
+    });
 
    
 
@@ -88,10 +88,19 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('objectives', ObjectiveController::class);
     Route::resource('purposes', PurposeController::class);
     
+    Route::match(['put', 'patch'], '/initiatives/{id}/update-inline', [InitiativeController::class, 'updateInline'])
+    ->name('initiatives.updateInline');
+    Route::get('/user/performance/{period}/appraisal-report', [InitiativeController::class, 'showAppraisalReport'])->name('user.performance.appraisal.report');
+
+// Full resource routes (index, create, store, show, edit, update, destroy)
     Route::resource('initiatives', InitiativeController::class);
+
     Route::get('/report', [ReportController::class, 'create'])->name('report.create');
     Route::get('/myreport', [ReportController::class, 'mycreate'])->name('report.mycreate');
-Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
+    Route::get('/appraisalreport', [ReportController::class, 'apcreate'])->name('appraisalreport.apcreate');
+
+    Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
+    Route::post('/reportappraisal/apgenerate', [ReportController::class, 'apgenerate'])->name('reportappraisal.apgenerate');
 
 
 });

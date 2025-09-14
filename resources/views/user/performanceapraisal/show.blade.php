@@ -55,47 +55,141 @@
     </table>
     <br>
 <hr>
-
+@if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
     {{-- Initiatives --}}
  <h3>Perfomance Appraisal</h3>
+ <table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Target</th>
+            <th>Objective</th>
+            <th>Initiative</th>
+            <th>Target/ Budget</th>
+            <th>Actual/Achieved </th>
+            <th>Appraisal Rating</th>
+            <th>Comment</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($initiatives as $initiative)
+            <tr>
+                <td>{{ $initiative->target->target_name ?? '-' }}</td>
+                <td>{{ $initiative->objective->objective ?? '-' }}</td>
+                <td>{{ $initiative->initiative }}</td>
+                <td>{{ $initiative->budget }}</td>
+
+                {{-- Inline update form --}}
+                <td colspan="2">
+                    <form action="{{ route('initiatives.updateInline', $initiative->id) }}" method="POST" class="d-flex align-items-center">
+                        @csrf
+                        @method('PATCH')
+
+                        {{-- Archived toggle --}}
+                        <select name="archieved" class="form-control me-2" style="width: 120px;">
+                            <option value="0" {{ $initiative->archieved == 0 ? 'selected' : '' }}>Not Archived</option>
+                            <option value="1" {{ $initiative->archieved == 1 ? 'selected' : '' }}>Archived</option>
+                        </select>
+                        {{-- Rating dropdown --}}
+                        <select name="rating" class="form-control me-2" style="width: 180px;">
+                            <option value="">-- Select Rating --</option>
+                            <option value="6" {{ $initiative->rating == 6 ? 'selected' : '' }}>A1 - Outstanding performance. High levels of expertise</option>
+                            <option value="5" {{ $initiative->rating == 5 ? 'selected' : '' }}>A2 - Consistently exceeds requirements</option>
+                            <option value="4" {{ $initiative->rating == 4 ? 'selected' : '' }}>B1 - Meets requirements. Occasionally exceeds them</option>
+                            <option value="3" {{ $initiative->rating == 3 ? 'selected' : '' }}>B2 - Meets requirements</option>
+                            <option value="2" {{ $initiative->rating == 2 ? 'selected' : '' }}>C1 - Partially meets requirements. Improvement required</option>
+                            <option value="1" {{ $initiative->rating == 1 ? 'selected' : '' }}>C2 - Unacceptable. Well below standard required</option>
+                        </select>
+
+                        {{-- Comment --}}
+                        <input type="text" 
+                               name="comment" 
+                               value="{{ $initiative->comment }}" 
+                               class="form-control me-2" 
+                               style="width: 200px;">
+
+                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                    </form>
+                </td>
+            </tr>
+        @empty
+            <tr><td colspan="7">No Actions found.</td></tr>
+        @endforelse
+    </tbody>
+</table>
+@php
+    // Group initiatives by target_id and calculate averages per target
+    $averages = $initiatives
+        ->groupBy('target_id')
+        ->map(function($group) {
+            return [
+                'target_name' => $group->first()->target->target_name ?? 'N/A',
+                'average' => $group->avg('rating'),
+            ];
+        });
+
+    // Calculate overall average across all initiatives
+    $overallAverage = $initiatives->avg('rating');
+
+    // Map rating number back to label
+    function mapRating($value) {
+        return match(true) {
+            $value >= 5.5 => 'A1 - Outstanding performance',
+            $value >= 4.5 => 'A2 - Consistently exceeds requirements',
+            $value >= 3.5 => 'B1 - Meets requirements. Occasionally exceeds them',
+            $value >= 2.5 => 'B2 - Meets requirements',
+            $value >= 1.5 => 'C1 - Partially meets requirements. Improvement required',
+            $value > 0    => 'C2 - Unacceptable. Well below standard required',
+            default       => 'No Rating',
+        };
+    }
+@endphp
+
+@if($averages->count())
+    <h4 class="mt-4">Average Ratings by Target</h4>
     <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Target</th>
-                <th>Objective</th>
-                <th>Initiative</th>
-                <th>Appraisal Rating </th>
-                <th>Comment</th>
-                <th>Actions</th>
+                <th>Performance Level</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($initiatives as $initiative)
+            @foreach($averages as $avg)
                 <tr>
-                    <td>{{ $initiative->target->target_name ?? '-' }}</td>
-                    <td>{{ $initiative->objective->objective ?? '-' }}</td>
-                    <td>{{ $initiative->initiative }}</td>
-                    <td>{{ $initiative->rating }}</td>
-                    <td>{{ $initiative->comment }}</td>
-                    <td>
-                        <a href="{{ route('initiatives.show', $initiative->id) }}" class="btn btn-sm btn-info">Show</a>
-                        <a href="{{ route('initiatives.edit', $initiative->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                        <form action="{{ route('initiatives.destroy', $initiative->id) }}" method="POST" style="display:inline-block;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this initiative?')">Delete</button>
-                        </form>
-                    </td>
+                    <td>{{ $avg['target_name'] }}</td>
+                    <td>{{ mapRating($avg['average']) }}</td>
                 </tr>
-            @empty
-                <tr><td colspan="4">No Actions found.</td></tr>
-            @endforelse
+            @endforeach
         </tbody>
     </table>
+@endif
+
+@if($overallAverage)
+    <h4 class="mt-4">Overall Performance Rating</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Overall Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ mapRating($overallAverage) }}</td>
+            </tr>
+        </tbody>
+    </table>
+@endif
+
+
+
+
+    <hr>
     <hr>
     <h3>Generate Report</h3>
-    <form method="POST" action="{{ route('report.generate') }}">
+    <form method="POST" action="{{ route('appraisalreport.apgenerate') }}">
         @csrf
         <input type="hidden" name="user_id" value="{{ auth()->id() }}">
         <div class="form-group">

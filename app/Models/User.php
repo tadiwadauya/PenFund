@@ -62,4 +62,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(Approval::class);
     }
+    public function purposes()
+{
+    return $this->hasMany(Purpose::class);
+}
+
+public function objectives()
+{
+    return $this->hasMany(Objective::class);
+}
+
+public function initiatives()
+{
+    return $this->hasMany(Initiative::class);
+}
 }
