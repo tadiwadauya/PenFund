@@ -39,6 +39,12 @@ public function approvals()
 {
     return $this->hasMany(\App\Models\Approval::class);
 }
+
+public function authorisations()
+{
+    return $this->hasMany(Authorisation::class);
+}
+
 public function initiatives()
 {
     return $this->hasMany(\App\Models\Initiative::class);

@@ -33,7 +33,8 @@ class User extends Authenticatable
         'gender',
         'dob',
         'grade',
-        'is_admin' // adding this
+        'is_admin',
+        'supervisor_id' // adding this
     ];
 
     /**
@@ -60,7 +61,7 @@ class User extends Authenticatable
     }
     public function authorisations()
     {
-        return $this->hasMany(Approval::class);
+        return $this->hasMany(Authorisation::class);
     }
     public function purposes()
 {
@@ -75,5 +76,15 @@ public function objectives()
 public function initiatives()
 {
     return $this->hasMany(Initiative::class);
+}
+
+public function supervisor()
+{
+    return $this->belongsTo(User::class, 'supervisor_id');
+}
+
+public function subordinates()
+{
+    return $this->hasMany(User::class, 'supervisor_id');
 }
 }

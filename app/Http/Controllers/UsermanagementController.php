@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Department;
 use App\Models\Section;
 use App\Models\JobTitle;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 
 class UsermanagementController extends Controller
@@ -33,7 +34,8 @@ class UsermanagementController extends Controller
         $departments = Department::all();
         $jobtitles = JobTitle::all();      
         $sections = Section::all();
-        return view('users.create',compact('departments','jobtitles','sections'));
+        $users = User::all();
+        return view('users.create',compact('departments','jobtitles','sections','users'));
     }
     
     /**
@@ -57,6 +59,7 @@ class UsermanagementController extends Controller
             'jobtitle' => 'required|string|max:255',
             'department' => 'nullable|string|max:255',
             'section' => 'nullable|string|max:255',
+            'supervisor_id' => 'nullable|string|max:255',
             'gender' => 'nullable|string|max:10', // Adjust max length as needed
             'dob' => 'nullable|date', // Ensure dob is a valid date            
             'is_admin' => 'required|integer|max:2', // Assuming roles is an array
@@ -96,8 +99,9 @@ class UsermanagementController extends Controller
         $departments = Department::all();
         $jobtitles = JobTitle::all();
         $sections = Section::all();
+        $users = User::all(); // supervisors
     
-        return view('users.edit',compact('user','departments','jobtitles','sections'));
+        return view('users.edit',compact('user','departments','jobtitles','sections','users'));
     }
     
     /**
@@ -109,42 +113,46 @@ class UsermanagementController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Base validation (no password here)
         $this->validate($request, [
             'name' => 'required|string|max:255|unique:users,name,' . $id,
             'email' => 'required|email|unique:users,email,' . $id,
-            'same:confirm-password',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'department' => 'nullable|string|max:255',
             'jobtitle' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
-            'mobile' => 'nullable|string|max:15', // Adjust max length as needed
-            'section' => 'nullable|string|max:10', // Adjust max length as needed
-            'speeddial' => 'nullable|string|max:10', // Adjust max length as needed
-            'gender' => 'nullable|string|max:10', // Adjust max length as needed
-            'dob' => 'nullable|date', // Ensure dob is a valid date
-            'grade' => 'nullable|string|max:10', // Ensure dob is a valid date
+            'mobile' => 'nullable|string|max:15',
+            'section' => 'nullable|string|max:10',
+            'speeddial' => 'nullable|string|max:10',
+            'gender' => 'nullable|string|max:10',
+            'dob' => 'nullable|date',
+            'supervisor_id' => 'nullable|string|max:10',
+            'grade' => 'nullable|string|max:10',
         ]);
     
         $input = $request->all();
     
-        // Hash the password if it is provided
-        if (!empty($input['password'])) {
+        // ✅ Only validate password if user typed one
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => 'required|string|min:6|same:confirm-password',
+            ]);
             $input['password'] = Hash::make($input['password']);
         } else {
-            // Remove password from input if it's not provided
-            $input = Arr::except($input, ['password']);
+            // remove both password fields so they don’t interfere
+            $input = Arr::except($input, ['password', 'confirm-password']);
         }
     
-        // Find the user and update
-        $user = User::findOrFail($id); // Use findOrFail to handle not found
+        $user = User::findOrFail($id);
         $user->update($input);
-    
-       
     
         return redirect()->route('users.index')
                          ->with('success', 'User updated successfully');
     }
+    
+    
+
     
     /**
      * Remove the specified resource from storage.

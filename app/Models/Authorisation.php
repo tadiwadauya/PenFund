@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Authorisation extends Model
 {
-    protected $fillable = ['user_id', 'period_id', 'status', 'comment'];
+    protected $fillable = ['user_id', 'period_id', 'status', 'comment','authorised_by','reviewercomment'];
 
 
     public function user()

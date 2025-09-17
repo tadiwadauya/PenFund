@@ -32,16 +32,18 @@
 @endif
 {!! Form::open(array('route' => 'users.store','method'=>'POST')) !!}
 <div class="row">
-    <div class="col-xs-6 col-sm-6 col-md-6">
-        <div class="form-group">
-            <strong>UserName:</strong>
-            {!! Form::text('name', null, array('placeholder' => 'User Name','class' => 'form-control')) !!}
-        </div>
+<div class="col-xs-6 col-sm-6 col-md-6">
+    <div class="form-group">
+        <strong>UserName:</strong>
+        {!! Form::text('name', null, array('placeholder' => 'User Name', 'class' => 'form-control', 'autocomplete' => 'off', 'style' => 'display:none;')) !!}
+        {!! Form::text('name', null, array('placeholder' => 'User Name', 'class' => 'form-control', 'autocomplete' => 'off', 'name' => 'name')) !!}
     </div>
+</div>
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">
             <strong>Email:</strong>
-            {!! Form::email('email', null, array('placeholder' => 'email','class' => 'form-control')) !!}
+            {!! Form::email('email', null, array('placeholder' => 'email','class' => 'form-control', 'autocomplete' => 'off', 'style' => 'display:none;')) !!}
+            {!! Form::email('email', null, array('placeholder' => 'email', 'class' => 'form-control', 'autocomplete' => 'off', 'name' => 'email')) !!}
         </div>
     </div>
     <div class="col-xs-6 col-sm-6 col-md-6">
@@ -59,7 +61,7 @@
     <div class="col-xs-6 col-sm-6 col-md-6">
     <div class="form-group">
         <strong>Department:</strong>
-        <select class="form-control select2" name="department" id="department" onchange="filterJobTitles()">
+        <select class="form-control select2" name="department" id="department">
             <option value="">Select Department</option>
             @if ($departments)
                 @foreach($departments as $department)
@@ -106,24 +108,36 @@
             {!! Form::text('mobile', null, array('placeholder' => 'mobile','class' => 'form-control')) !!}
         </div>
     </div>
+
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">
             <strong>extension:</strong>
             {!! Form::text('extension', null, array('placeholder' => 'extension','class' => 'form-control')) !!}
         </div>
     </div>
-    <div class="col-xs-6 col-sm-6 col-md-6">
-       
 
+    <div class="col-xs-6 col-sm-6 col-md-6">
     <div class="form-group">
             <strong>Address:</strong>
             {!! Form::text('address', null, array('placeholder' => 'address','class' => 'form-control')) !!}
         </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">
             <strong>Grade:</strong>
-            {!! Form::text('grade', null, array('placeholder' => 'grade','class' => 'form-control')) !!}
+            {!! Form::number('grade', null, array('placeholder' => 'grade','class' => 'form-control')) !!}
         </div>
-
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6">
+        <div class="form-group">
+    <strong>Supervisor:</strong>
+    <select class="form-control select2" name="supervisor_id">
+        <option value="">Select Supervisor</option>
+        @foreach($users as $user)
+            <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }} ({{ $user->name }})</option>
+        @endforeach
+    </select>
+</div>
 
     </div>
     <div class="col-xs-6 col-sm-6 col-md-6">
@@ -147,7 +161,7 @@
     <div class="col-xs-5 col-sm-5 col-md-5">
     <div class="form-group">
         <strong>Password:</strong>
-        {!! Form::password('password', ['placeholder' => 'Password', 'class' => 'form-control', 'oninput' => 'checkPasswordMatch()']) !!}
+        {!! Form::password('password', ['placeholder' => 'Password', 'class' => 'form-control', 'oninput' => 'checkPasswordMatch()','autocomplete' => 'new-password']) !!}
     </div>
 </div>
 <div class="col-xs-5 col-sm-5 col-md-5">

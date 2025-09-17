@@ -55,12 +55,19 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/manager/users', [ManagerDashboardController::class, 'index'])->name('manager.users.index');
     Route::get('/manager/users/{user}', [ManagerDashboardController::class, 'show'])->name('manager.users.show');
+
+    //view users to be approver appraisal with inline edit 
+    Route::get('/manager/appraisals/{user}', [ManagerDashboardController::class, 'apshow'])->name('manager.appraisals.apshow');
+    Route::get('/manager/appraisal/{periodId}', [ManagerDashboardController::class, 'apshow'])->name('manager.appraisal.show');
+
     
     // New approval routes
     Route::post('/manager/users/{user}/approve/{period}', [ManagerDashboardController::class, 'approve'])->name('manager.users.approve');
     Route::post('/manager/users/{user}/reject/{period}', [ManagerDashboardController::class, 'reject'])->name('manager.users.reject');
 
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
+    Route::get('/manager/dashboardap', [ManagerDashboardController::class, 'appraisal'])->name('manager.dashboardap');
+    
     Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
     Route::post('/appraisalreport/apgenerate', [ReportController::class, 'apgenerate'])->name('appraisalreport.apgenerate');
 
@@ -71,7 +78,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/my/performanceapraisal', [PerformanceApraisalController::class, 'index'])->name('user.performanceapraisal.index');
     Route::get('/my/performanceapraisal/{period}', [PerformanceApraisalController::class, 'show'])->name('user.performanceapraisal.show');
-    Route::post('/my/performanceapraisal/submit/{period}', [PerformanceApraisalController::class, 'submitForApproval'])->name('user.performanceapraisal.submit');
+    Route::post('/my/performanceapraisal/submit/{period}', [PerformanceApraisalController::class, 'submitForAuthorisation'])->name('user.performanceapraisal.submit');
     });
 
    

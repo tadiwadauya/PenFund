@@ -14,20 +14,7 @@
                 <form method="POST" action="{{ route('initiatives.store') }}">
                     @csrf
 
-                    {{-- Objective --}}
-                    <div class="form-group">
-                        <label for="objective_id">Select Objective</label>
-                        <select name="objective_id" id="objective_id" class="form-control" required>
-                            <option value="">-- Choose Objective --</option>
-                            @foreach($objectives as $objective)
-                                <option value="{{ $objective->id }}">
-                                    {{ $objective->objective }}
-                                    (Target: {{ $objective->target->target_name ?? '-' }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('objective_id') <small class="text-danger">{{ $message }}</small> @enderror
-                    </div>
+                  
 
                     {{-- Target --}}
                     <div class="form-group">
@@ -40,10 +27,23 @@
                         </select>
                         @error('target_id') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
-
+                    {{-- Objective --}}
+                    <div class="form-group">
+                        <label for="objective_id">Select Objective</label>
+                        <select name="objective_id" id="objective_id" class="form-control" required>
+                            <option value="">-- Choose Objective --</option>
+                            @foreach($objectives as $objective)
+                                <option value="{{ $objective->id }}">
+                                    {{ $objective->objective }}
+                                 
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('objective_id') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
                     {{-- Initiative --}}
                     <div class="form-group">
-                        <label for="initiative">Initiative</label>
+                        <label for="initiative">Action To Support Objective</label>
                         <textarea name="initiative" id="initiative" class="form-control" rows="3" required>{{ old('initiative') }}</textarea>
                         @error('initiative') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>

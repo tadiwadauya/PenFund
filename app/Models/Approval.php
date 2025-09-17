@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Approval extends Model
 {
-    protected $fillable = ['user_id', 'period_id', 'status', 'comment'];
+    protected $fillable = ['user_id', 'period_id', 'status', 'comment','approved_by'];
 
 
     public function user()

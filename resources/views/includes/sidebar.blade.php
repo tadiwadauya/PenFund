@@ -88,6 +88,48 @@
                     </a>
                 </li>
               
+</ul>
+
+
+
+
+
+
+                <li class="nav-item">
+            <a href="#" class="nav-link {{ Request::is('purposes/mypurpose')|| Request::is('my/performanceapraisal') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-tachometer-alt"></i>
+                <p>
+                    Performance Appraisal
+                    <i class="fas fa-angle-left right"></i>
+     
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+         
+
+                
+                <li class="nav-item">
+                    <a href="{{ url('/my/performanceapraisal')}}" class="nav-link {{ Request::is('my/performanceapraisal')  ? 'active' : '' }}" >
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Perfomance Appraisal</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ url('/manager/dashboardap')}}" class="nav-link {{ Request::is('manager/dashboardap')  ? 'active' : '' }}" >
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Department Appraisal</p>
+                    </a>
+                </li>
+              
+
+
+
+
+
+
+</ul>
+
 
         <li class="nav-header">User Management</li>
 

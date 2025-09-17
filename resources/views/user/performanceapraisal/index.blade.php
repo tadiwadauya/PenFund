@@ -8,7 +8,6 @@
 <section class="content">
 <div class="container-fluid">
 
-
     <h1>My Performance Appraisal Periods</h1>
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -18,24 +17,32 @@
         <thead>
             <tr>
                 <th>Period</th>
-                <th>Status</th>
+               
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($periods as $period)
                 @php
+                    // Fetch approval for this user/period
+                    $approval = auth()->user()->approvals()->where('period_id', $period->id)->first();
+
+                    // Fetch authorisation for this user/period
                     $authorisation = auth()->user()->authorisations()->where('period_id', $period->id)->first();
+                   
                 @endphp
                 <tr>
                     <td>{{ $period->year }}</td>
-                    <td>{{ $authorisation->status ?? 'Not Submitted' }}</td>
+
+                   
+
                     <td>
-                        <a href="{{ route('user.performanceapraisal.show', $period->id) }}" class="btn btn-info">My Perfomance Appraisal</a>
+                        <a href="{{ route('user.performanceapraisal.show', $period->id) }}" class="btn btn-info">My Performance Appraisal</a>
+
                         @if(!$authorisation)
                             <form method="POST" action="{{ route('user.performanceapraisal.submit', $period->id) }}" style="display:inline;">
                                 @csrf
-                                <button type="submit" class="btn btn-primary">Submit for authorisation</button>
+                                <button type="submit" class="btn btn-primary">Submit for Authorisation</button>
                             </form>
                         @endif
                     </td>

@@ -53,7 +53,7 @@
     <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
                     <strong>Department:</strong>
-                    <select class="form-control select2" name="department" id="department" onchange="filterJobTitles()">
+                    <select class="form-control select2" name="department" id="department">
                         <option value="">Select Department</option>
                         @if ($departments)
                             @foreach($departments as $department)
@@ -70,7 +70,7 @@
     <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
                     <strong>Section:</strong>
-                    <select class="form-control select2" name="section" id="section" onchange="filterJobTitles()">
+                    <select class="form-control select2" name="section" id="section">
                         <option value="">Select Section</option>
                         @if ($sections)
                             @foreach($sections as $section)
@@ -85,7 +85,7 @@
                 <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
                     <strong>Job Title:</strong>
-                    <select class="form-control select2" name="jobtitle" id="jobtitle" onchange="filterJobTitles()">
+                    <select class="form-control select2" name="jobtitle" id="jobtitle" >
                         <option value="">Select Job Title</option>
                         @if ($jobtitles)
                             @foreach($jobtitles as $jobtitle)
@@ -112,7 +112,20 @@
             {!! Form::text('grade', null, array('placeholder' => 'grade','class' => 'form-control')) !!}
         </div>
     </div>
-    grade
+    <div class="col-xs-6 col-sm-6 col-md-6">
+    <div class="form-group">
+        <strong>Supervisor:</strong>
+        <select class="form-control select2" name="supervisor_id">
+            <option value="">Select Supervisor</option>
+            @foreach($users as $supervisor)
+                <option value="{{ $supervisor->id }}" {{ $user->supervisor_id == $supervisor->id ? 'selected' : '' }}>
+                    {{ $supervisor->first_name }} {{ $supervisor->last_name }} ({{ $supervisor->name }})
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
+
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">
             <strong>mobile:</strong>
@@ -126,12 +139,19 @@
         </div>
     </div>
 
-    <div class="col-xs-6 col-sm-6 col-md-6">
+  <div class="col-xs-6 col-sm-6 col-md-6">
     <div class="form-group">
         <strong>Gender:</strong>
-        {!! Form::select('gender', ['' => 'Select Gender', 'male' => 'Male', 'female' => 'Female', 'other' => 'Other'], null, ['class' => 'form-control']) !!}
+        {!! Form::select(
+            'gender',
+            ['' => 'Select Gender', 'male' => 'Male', 'female' => 'Female', 'other' => 'Other'],
+            old('gender', $user->gender),
+            ['class' => 'form-control']
+        ) !!}
     </div>
 </div>
+
+
 <div class="col-xs-6 col-sm-6 col-md-6">
     <div class="form-group">
         <strong>Date of Birth:</strong>
@@ -151,18 +171,42 @@
             {!! Form::select('is_admin', ['' => 'Select Role', '1' => 'Admin', '0' => 'Normal User'], null, ['class' => 'form-control']) !!}
         </div>
     </div>
- <div class="col-xs-5 col-sm-5 col-md-5">
- <div class="form-group">
-    <strong>Password:</strong>
-    {!! Form::password('password', ['placeholder' => 'Password', 'class' => 'form-control', 'autocomplete' => 'off']) !!}
-</div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+    <div class="form-group">
+        <input type="checkbox" id="changePasswordToggle" onclick="togglePasswordFields()">
+        <label for="changePasswordToggle"><strong>Change Password</strong></label>
     </div>
- <div class="col-xs-5 col-sm-5 col-md-5">
-        <div class="form-group">
-            <strong>Confirm Password:</strong>
-            {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
+</div>
+<div id="passwordFields" style="display:none;">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <strong>Password:</strong>
+                {!! Form::password('password', [
+                    'placeholder' => 'Password',
+                    'class' => 'form-control',
+                    'autocomplete' => 'new-password',
+                    'value' => ''
+                ]) !!}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <strong>Confirm Password:</strong>
+                {!! Form::password('confirm-password', [
+                    'placeholder' => 'Confirm Password',
+                    'class' => 'form-control',
+                    'autocomplete' => 'new-password',
+                    'value' => ''
+                ]) !!}
+            </div>
         </div>
     </div>
+</div>
+
+
+
+
 
     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
         <button type="submit" class="btn btn-primary">Submit</button>
@@ -174,10 +218,18 @@
 </section>
 </div>
 </div>
+
+<script>
+function togglePasswordFields() {
+    var checkBox = document.getElementById("changePasswordToggle");
+    var passwordFields = document.getElementById("passwordFields");
+    passwordFields.style.display = checkBox.checked ? "block" : "none";
+}
+</script>
 <script>
     function filterJobsTitles() {
         var departmentSelect = document.getElementById("department");
-        var jobTitleSelect = document.getElementById("Jobtitle");
+        var jobTitleSelect = document.getElementById("jobtitle");
         var selectedDepartment = departmentSelect.value;
 
         // Show all job titles initially

@@ -19,16 +19,21 @@ class PerformanceApraisalController extends Controller
     public function index()
     {
         $user = auth()->user();
-
-        // Get all periods where the user has any purpose/objective/initiative
-        $periods = Period::whereHas('purposes', fn($q) => $q->where('user_id', $user->id))
-                         ->orWhereHas('objectives', fn($q) => $q->where('user_id', $user->id))
-                         ->orWhereHas('initiatives', fn($q) => $q->where('user_id', $user->id))
-                         ->get();
-
+    
+        // Get all periods where the user has an approved appraisal
+        $periods = Period::whereHas('approvals', function ($q) use ($user) {
+                                $q->where('user_id', $user->id)
+                                  ->where('status', 'Approved');
+                            })
+                            ->with([
+                                'approvals' => fn($q) => $q->where('user_id', $user->id),
+                                'authorisations' => fn($q) => $q->where('user_id', $user->id),
+                            ])
+                            ->get();
+    
         return view('user.performanceapraisal.index', compact('periods'));
     }
-
+    
     public function show($periodId)
     {
         $user = auth()->user();
@@ -72,6 +77,14 @@ class PerformanceApraisalController extends Controller
             // If not rejected, block re-submission
             return redirect()->back()->with('error', 'This period is already submitted for authorisation.');
         }
+          // ✅ First time submission
+          Authorisation::create([
+        'user_id' => $user->id,
+        'period_id' => $periodId,
+        'status' => 'Pending',
+    ]);
+
+    return redirect()->back()->with('success', 'Submitted for approval successfully.');
 
 }
 }
