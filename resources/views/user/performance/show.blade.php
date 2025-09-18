@@ -45,11 +45,11 @@
             </tr>
             @forelse($purposes as $purpose)
                 <tr>
-                    <td>{{ $purpose->purpose }}</td>
+                    <td>{!! $purpose->purpose !!}</td>
                     <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
                     <td>
-                        <a href="{{ route('mypurpose.show', $purpose->id) }}" class="btn btn-sm btn-info">Show</a>
-                        <a href="{{ route('mypurpose.edit', $purpose->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                
+                        <a href="{{ route('purposes.edit', $purpose) }}" class="btn btn-warning">Edit</a>
                         <form action="{{ route('mypurpose.destroy', $purpose->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')

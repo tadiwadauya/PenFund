@@ -49,6 +49,7 @@ Route::get('/mypurpose', [ContractController::class, 'mypurpose'])->name('purpos
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('purposes/mypurpose', UserPurposeController::class);
+
 });
 Route::middleware(['auth'])->group(function () {
 
@@ -94,6 +95,10 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('targets', TargetController::class);
     Route::resource('objectives', ObjectiveController::class);
     Route::resource('purposes', PurposeController::class);
+
+
+    Route::get('manager/purposes/{purpose}/edit', [PurposeController::class, 'managerEdit'])->name('manager.purposes.edit');
+    Route::patch('manager/purposes/{purpose}', [PurposeController::class, 'managerUpdate'])->name('manager.purposes.update');
     
     Route::match(['put', 'patch'], '/initiatives/{id}/update-inline', [InitiativeController::class, 'updateInline'])
     ->name('initiatives.updateInline');

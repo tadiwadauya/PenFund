@@ -10,7 +10,12 @@
             <div class="container-fluid">
 
                 <h1>Add New Action to Support Objectives</h1>
-
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+                <div class="pull-right">
+            <a class="btn btn-primary" href="{{ route('user.performance.index') }}"> Back</a>
+        </div>
                 <form method="POST" action="{{ route('initiatives.store') }}">
                     @csrf
 

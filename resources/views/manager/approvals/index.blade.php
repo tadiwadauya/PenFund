@@ -4,6 +4,7 @@
     <h1>Users Pending Approval of Performance Data</h1>
 
     @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+    
     @if($approvals->isEmpty())
         <p>No users pending approval.</p>
     @else

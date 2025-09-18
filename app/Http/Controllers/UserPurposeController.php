@@ -29,7 +29,7 @@ class UserPurposeController extends Controller
     {
         // Validate the incoming request
         $request->validate([
-            'purpose' => 'required|string|max:255',
+            'purpose' => 'required|string',
             'period_id' => 'required|exists:periods,id',
         ]);
         

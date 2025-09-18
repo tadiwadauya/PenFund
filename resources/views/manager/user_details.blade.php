@@ -8,7 +8,7 @@
 <section class="content">
 <div class="container-fluid">
 
-    <h1>Performance Data for {{ $user->name }}</h1>
+    <h1>Performance Target for {{ $user->name }}</h1>
 
     {{-- Purposes --}}
     <h3>Purposes</h3>
@@ -25,12 +25,11 @@
         <tbody>
             @forelse($purposes as $purpose)
                 <tr>
-                    <td>{{ $purpose->purpose }}</td>
+                <td>{!! $purpose->purpose !!}</td>
                     <td>{{ $purpose->period->year ?? '-' }}</td>
                     <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
                     <td>
-                        <a href="{{ route('purposes.show', $purpose->id) }}" class="btn btn-info">Show</a>
-                        <a href="{{ route('purposes.edit', $purpose->id) }}" class="btn btn-warning">Edit</a>
+                        <a href="{{ route('manager.purposes.edit', $purpose->id) }}" class="btn btn-warning">Edit</a>
                         <form action="{{ route('purposes.destroy', $purpose->id) }}" method="POST" style="display:inline;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger"

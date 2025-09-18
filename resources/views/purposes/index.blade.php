@@ -66,7 +66,7 @@
                             <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <a href="{{ route('purposes.show', $purpose) }}" class="btn btn-info">View</a>
-                                <a href="{{ route('purposes.edit', $purpose) }}" class="btn btn-warning">Edit</a>
+                                <a href="{{ route('purposes.mypurpose.edit', $purpose->id) }}" class="btn btn-warning">Edit</a>
                                 <form action="{{ route('purposes.destroy', $purpose) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')

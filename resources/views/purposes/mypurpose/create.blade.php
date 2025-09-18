@@ -37,9 +37,9 @@
 <form action="{{ route('mypurpose.store') }}" method="POST">
         @csrf
         <div class="form-group">
-            <label for="purpose">Purpose</label>
-            <input type="text" class="form-control" name="purpose" id="purpose" required>
-        </div>
+        <div class="card-body">
+              <textarea id="purpose" name="purpose"></textarea>
+            </div>
         <div class="form-group">
             <label for="period_id">Period</label>
             <select class="form-control" name="period_id" id="period_id" required>

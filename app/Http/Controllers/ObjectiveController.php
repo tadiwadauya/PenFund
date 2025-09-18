@@ -67,14 +67,14 @@ class ObjectiveController extends Controller
             'period_id' => 'required|exists:periods,id',
             'target_id' => 'required|exists:targets,id',
             'objective' => 'required|string'
-            
         ]);
-
+    
         Objective::create($request->all());
-
-        return redirect()->route('user.performance.index')->with('success', 'Objective created successfully.');
+    
+        // Stay on the same page after storing
+        return redirect()->back()->with('success', 'Objective created successfully.');
     }
-
+    
     // Display the specified objective
     public function show(Objective $objective)
     {

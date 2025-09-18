@@ -17,10 +17,13 @@
     <h1>Create objective</h1>
     </div>
         <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('objectives.index') }}"> Back</a>
+            <a class="btn btn-primary" href="{{ route('user.performance.index') }}"> Back</a>
         </div>
     </div>
 </div>
+@if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 @if (count($errors) > 0)
     <div class="alert alert-danger">
         <strong>Whoops!</strong> There were some problems with your input.<br><br>

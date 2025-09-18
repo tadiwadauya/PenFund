@@ -32,36 +32,38 @@
                 @if ($purposes->isEmpty())
                     <p>No purposes found.</p>
                 @else
-                    <table id="example1" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>Purpose</th>
-                                <th>Period</th>
-                                <th>User</th>
-                                <th>Created At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($purposes as $purpose)
-                                <tr>
-                                    <td>{{ $purpose->purpose }}</td>
-                                    <td>{{ $purpose->period->year }}</td>
-                                    <td>{{ $purpose->user->name }}</td>
-                                    <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
-                                    <td>
-                                        <a href="{{ route('mypurpose.show', $purpose) }}" class="btn btn-info">View</a>
-                                        <a href="{{ route('purposes.edit', $purpose) }}" class="btn btn-warning">Edit</a>
-                                        <form action="{{ route('mypurpose.destroy', $purpose) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this purpose?');">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                <table id="example1" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Purpose</th>
+            <th>Period</th>
+            <th>User</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($purposes as $purpose)
+            <tr>
+                <!-- Render HTML safely -->
+                <td>{!! $purpose->purpose !!}</td>
+                <td>{{ $purpose->period->year }}</td>
+                <td>{{ $purpose->user->name }}</td>
+                <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
+                <td>
+                  
+                    <a href="{{ route('purposes.edit', $purpose) }}" class="btn btn-warning">Edit</a>
+                    <form action="{{ route('mypurpose.destroy', $purpose) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this purpose?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
+
                 @endif
             </div>
         </section>

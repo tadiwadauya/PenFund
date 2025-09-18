@@ -24,7 +24,7 @@
 <body>
 
 <center>
-    <img src="{{ asset('admin/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
+   
     <h1>LOCAL AUTHORITIES PENSION FUND</h1>
     <h1>2025 PERFORMANCE CONTRACT</h1>
 </center>
@@ -38,7 +38,7 @@
         <td>
             <ul>
                 @foreach($purposes as $purpose)
-                    <li>{{ $purpose->purpose }}</li>
+                    {!! $purpose->purpose !!}
                 @endforeach
             </ul>
         </td>
@@ -48,11 +48,22 @@
             <p><strong>Section:</strong> {{ $user->section }}</p>
             <p><strong>Position:</strong> {{ $user->jobtitle }}</p>
             <p><strong>Job Grade:</strong> {{ $user->grade }}</p>
-            <p><strong>Superior Position:</strong> {{ $managerJobTitle ?? 'N/A' }}</p>
-            <p><strong>Superior Job Grade:</strong> {{ $managerGrade ?? 'N/A' }}</p>
+            <p><strong>Superior Position:</strong> {{ $user->supervisor ? $user->supervisor->first_name . ' ' . $user->supervisor->last_name : 'N/A' }}</p>
+            <p><strong>Superior Job Grade:</strong> {{ $user->supervisor ? $user->supervisor->grade : 'N/A' }}</p>
         </td>
     </tr>
 </table>
+<h5>Rating Scale for Use Throughout the Form:</h5>
+<ul>
+    <li><strong>A1:</strong> Outstanding performance. High levels of expertise.</li>
+    <li><strong>A2:</strong> Consistently exceeds requirements.</li>
+    <li><strong>B1:</strong> Meets requirements. Occasionally exceeds them.</li>
+    <li><strong>B2:</strong> Meets requirements.</li>
+    <li><strong>C1:</strong> Partially meets requirements. Improvement required.</li>
+    <li><strong>C2:</strong> Unacceptable. Well below standard required.</li>
+</ul>
+
+
 
 {{-- Loop objectives and initiatives directly --}}
 @foreach($objectives as $objective)
@@ -83,6 +94,26 @@
 @if($objectives->isEmpty())
     <p><em>No objectives available for this period.</em></p>
 @endif
+
+<h4>Signatures</h4>
+<p>After discussing this assessment of the staff member’s overall performance, and after the reviewer assigns the final performance rating, both the staff member being assessed and Assessor sign here as confirmation of the discussion and confirmation they have seen the final ratings and reviewers comments. The Reviewer also signs.</p>
+<table style="width: 100%; margin-top: 30px;">
+    <tr>
+        <!-- Left side -->
+        <td style="width: 50%; text-align: left; vertical-align: bottom;">
+            <p>Incumbent’s Electronic Signature</p>
+            <p>__________________________</p>
+            <label>Date:</label>
+        </td>
+
+        <!-- Right side -->
+        <td style="width: 50%; text-align: right; vertical-align: bottom;">
+            <p>Superior’s Electronic Signature</p>
+            <p>__________________________</p>
+            <label>Date:</label>
+        </td>
+    </tr>
+</table>
 
 </body>
 </html>

@@ -83,8 +83,7 @@ class InitiativeController extends Controller
         'createdby'  => auth()->user()->name,
     ]);
 
-    return redirect()->route('user.performance.index')
-        ->with('success', 'Action created successfully.');
+    return redirect()->back()->with('success', 'Objective created successfully.');
 }
 
     // Display the specified Initiative

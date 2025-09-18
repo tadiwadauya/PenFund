@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('content')
 <div class="container-fluid">
-    <h1>Performance Data for {{ $user->first_name }} {{ $user->last_name }} — {{ $approval->period->year }}</h1>
-
+    <h1>Performance Target for {{ $user->first_name }} {{ $user->last_name }} — {{ $approval->period->year }}</h1>
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
     {{-- Purposes --}}
     <h3>Purposes</h3>
     <table class="table table-bordered">
@@ -10,7 +12,7 @@
         <tbody>
         @forelse($purposes as $purpose)
             <tr>
-                <td>{{ $purpose->purpose }}</td>
+                <td>{!! $purpose->purpose !!}</td>
                 <td>{{ $purpose->period->year ?? '-' }}</td>
                 <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
                 <td>

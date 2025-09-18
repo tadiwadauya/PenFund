@@ -68,6 +68,7 @@ class PurposeController extends Controller
         return view('purposes.show', compact('purpose'));
     }
 
+
     public function edit(Purpose $purpose)
     {
         // Fetch all periods and users to show in the edit form
@@ -76,20 +77,23 @@ class PurposeController extends Controller
         return view('purposes.edit', compact('purpose', 'periods'));
     }
 
+
+
     public function update(Request $request, Purpose $purpose)
 {
     // Validate the incoming request
     $request->validate([
       
-        'purpose' => 'required|string|max:255',
-        'period_id' => 'required|exists:periods,id',
+        'purpose' => 'required|string',
     ]);
 
     // Update the purpose with the new data
     $purpose->update($request->all());
 
-    return redirect()->route('mypurpose.index')->with('success', 'Purpose updated successfully.');
+    return redirect()->route('user.performance.index')->with('success', 'Purpose updated successfully.');
 }
+
+
     public function destroy(Purpose $purpose)
     {
         // Delete the purpose
@@ -97,6 +101,34 @@ class PurposeController extends Controller
 
         return redirect()->route('purposes.index')->with('success', 'Purpose deleted successfully.');
     }
+
+
+
+
+    public function managerUpdate(Request $request, Purpose $purpose)
+    {
+        // Validate the incoming request
+        $request->validate([
+          
+            'purpose' => 'required|string',
+        ]);
+    
+        // Update the purpose with the new data
+        $purpose->update($request->all());
+    
+        return redirect()->route('manager.users.index')->with('success', 'Purpose updated successfully.');
+    }
+
+
+    public function managerEdit(Purpose $purpose)
+{
+    // Managers can edit user purposes
+    $periods = Period::all();
+    return view('purposes.manager.edit', compact('purpose', 'periods'));
+}
+    
+
+    
 }
 
 

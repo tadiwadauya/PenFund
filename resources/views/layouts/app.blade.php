@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="{{ asset('admin/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
   <link rel="stylesheet" href="{{ asset('admin/plugins/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
   <link rel="stylesheet" href="{{ asset('admin/plugins/datatables-buttons/css/buttons.bootstrap4.min.css')}}">
+  <link rel="stylesheet" href="{{ asset('admin/plugins/summernote/summernote-bs4.min.css')}}">
 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -98,7 +99,19 @@
 <script src="{{ asset('admin/plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
 <!-- Select2 -->
 <script src="{{ asset('admin/plugins/select2/js/select2.full.min.js')}}"></script>
+<script src="{{ asset('admin/plugins/summernote/summernote-bs4.min.js')}}"></script>
+<script>
+  $(function () {
+    // Summernote
+    $('#purpose').summernote()
 
+    // CodeMirror
+    CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+      mode: "htmlmixed",
+      theme: "monokai"
+    });
+  })
+</script>
 <script>
   $(function () {
     //Initialize Select2 Elements
