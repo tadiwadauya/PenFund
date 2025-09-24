@@ -63,6 +63,27 @@ class ManagerDashboardController extends Controller
         return redirect()->route('manager.users.index')->with('success', 'User approved successfully.');
     }
 
+
+
+    public function authorisation(User $user, $periodId)
+    {
+        $authorisation = Authorisation::where('user_id', $user->id)
+                                      ->where('period_id', $periodId)
+                                      ->firstOrFail();
+    
+        $authorisation->update([
+            'status' => 'Authorized',
+            'authorised_by' => auth()->id(), // Set the approver
+        ]);
+    
+        return redirect()->route('manager.appraisal.show', ['user' => $user->id])
+                         ->with('success', 'User approved successfully.');
+    }
+    
+
+
+    
+
 public function reject(Request $request, User $user, $periodId)
 {
     $request->validate([
@@ -80,6 +101,26 @@ public function reject(Request $request, User $user, $periodId)
 
     return redirect()->route('manager.users.index')
         ->with('error', 'User rejected with comment.');
+}
+
+
+public function apreject(Request $request, User $user, $periodId)
+{
+    $request->validate([
+        'comment' => 'required|string|max:1000',
+    ]);
+
+    $authorisation = Authorisation::where('user_id', $user->id)
+                                  ->where('period_id', $periodId)
+                                  ->firstOrFail();
+
+    $authorisation->update([
+        'status' => 'Rejected',
+        'comment' => $request->comment,
+    ]);
+
+    return redirect()->route('manager.appraisal.show', ['user' => $user->id])
+                     ->with('error', 'User rejected with comment.');
 }
 
 
@@ -111,24 +152,48 @@ public function reject(Request $request, User $user, $periodId)
     
             return view('manager.user_details', compact('user', 'purposes', 'objectives', 'initiatives'));
         }
+
+
+
+
+
         
         //departmental show details with inline edit and authorisation
-        public function apshow($periodId)
+        public function apshow(User $user)
         {
             // Ensure logged-in manager can view this user
-            $user = auth()->user();
-
-            $period = Period::findOrFail($periodId);
-    
-            $purposes = Purpose::where('user_id', $user->id)->where('period_id', $periodId)->get();
-            $objectives = Objective::where('user_id', $user->id)->where('period_id', $periodId)->get();
-            $initiatives = Initiative::where('user_id', $user->id)->where('period_id', $periodId)->get();
-    
-            // Check if Authorisation exists
-            $authorisation = Authorisation::where('user_id', $user->id)->where('period_id', $periodId)->first();
-    
-            return view('manager.appraisal', compact('period', 'purposes', 'objectives', 'initiatives', 'authorisation'));
+            $authUser = auth()->user();
+        
+            // TODO: add department/section authorization if needed
+        
+            $purposes = Purpose::with('period')
+                               ->where('user_id', $user->id)
+                               ->get();
+        
+            $objectives = Objective::with(['period', 'target'])
+                                   ->where('user_id', $user->id)
+                                   ->get();
+        
+            $initiatives = Initiative::with(['period', 'target', 'objective'])
+                                     ->where('user_id', $user->id)
+                                     ->get();
+        
+            $authorisations = Authorisation::with('period')
+                                           ->where('user_id', $user->id)
+                                           ->get();
+        
+            return view('manager.appraisal', compact(
+                'user',
+                'purposes',
+                'objectives',
+                'initiatives',
+                'authorisations'
+            ));
         }
+        
+        
+
+        
     }
     
 

@@ -19,6 +19,9 @@ class Initiative extends Model
         'rating',
         'comment',
         'archieved',
+        'supervisorrating',
+        'reviewerrating',
+        'reviewercomment',
     ];
     
     // Define relationships if needed

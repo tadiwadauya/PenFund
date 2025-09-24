@@ -116,4 +116,31 @@ class ObjectiveController extends Controller
 
         return redirect()->route('objectives.index')->with('success', 'Objective deleted successfully.');
     }
+
+    public function managerUpdate(Request $request, Objective $objective)
+    {
+        $request->validate([
+            'period_id' => 'required|exists:periods,id',
+            'target_id' => 'required|exists:targets,id',
+            'objective' => 'required|string',
+            'actions'   => 'nullable|string',
+            'half_year_comment' => 'nullable|string',
+            'annual_comment' => 'nullable|string',
+            'half_year_rating' => 'nullable|string',
+            'annual_rating' => 'nullable|string',
+        ]);
+
+        $objective->update($request->all());
+
+         return redirect()->route('manager.users.index')->with('success', 'Objective updated successfully.');
+    }
+
+    public function managerEdit(Objective $objective)
+    {
+        $users = User::all();
+        $periods = Period::all();
+        $targets = Target::all();
+        return view('objectives.manager.edit', compact('objective', 'users', 'periods', 'targets'));
+    }
+
 }

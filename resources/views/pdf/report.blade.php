@@ -102,15 +102,31 @@
         <!-- Left side -->
         <td style="width: 50%; text-align: left; vertical-align: bottom;">
             <p>Incumbent’s Electronic Signature</p>
+           
+
+            {{-- ✅ Show approved user(s) --}}
+            @foreach($user->approvals->where('status', 'Approved') as $approval)
+                <p><strong>{{ $approval->user->name }} </strong></p>
+            @endforeach
             <p>__________________________</p>
             <label>Date:</label>
+            @if($approvals->first())
+                {{ \Carbon\Carbon::parse($approvals->first()->created_at)->format('d-m-Y') }}
+            @endif
+            
         </td>
 
         <!-- Right side -->
         <td style="width: 50%; text-align: right; vertical-align: bottom;">
             <p>Superior’s Electronic Signature</p>
+            @foreach($superiors as $superior)
+                <p><strong>{{ $superior->name }}</strong></p>
+            @endforeach
             <p>__________________________</p>
             <label>Date:</label>
+            @if($approvals->first())
+                {{ \Carbon\Carbon::parse($approvals->first()->updated_at)->format('d-m-Y') }}
+            @endif
         </td>
     </tr>
 </table>

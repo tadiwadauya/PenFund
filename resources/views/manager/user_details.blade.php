@@ -62,8 +62,7 @@
                     <td>{{ $objective->target->target_name ?? '-' }}</td>
                     <td>{{ $objective->period->year ?? '-' }}</td>
                     <td>
-                        <a href="{{ route('objectives.show', $objective->id) }}" class="btn btn-info">Show</a>
-                        <a href="{{ route('objectives.edit', $objective->id) }}" class="btn btn-warning">Edit</a>
+                        <a href="{{ route('manager.objectives.edit', $objective->id) }}" class="btn btn-warning">Edit</a>
                         <form action="{{ route('objectives.destroy', $objective->id) }}" method="POST" style="display:inline;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger"
@@ -78,8 +77,8 @@
     </table>
 
     {{-- Initiatives --}}
-    <h3>Initiatives</h3>
-    <a href="{{ route('initiatives.create') }}" class="btn btn-primary mb-2">Add Initiative</a>
+    <h3>Action to support objectives</h3>
+    <a href="{{ route('initiatives.create') }}" class="btn btn-primary mb-2">Add Action</a>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -98,12 +97,11 @@
                     <td>{{ $initiative->target->target_name ?? '-' }}</td>
                     <td>{{ $initiative->period->year ?? '-' }}</td>
                     <td>
-                        <a href="{{ route('initiatives.show', $initiative->id) }}" class="btn btn-info">Show</a>
-                        <a href="{{ route('initiatives.edit', $initiative->id) }}" class="btn btn-warning">Edit</a>
+                    <a href="{{ route('manager.initiatives.edit', $initiative->id) }}" class="btn btn-warning">Edit</a>
                         <form action="{{ route('initiatives.destroy', $initiative->id) }}" method="POST" style="display:inline;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Delete this initiative?')">Delete</button>
+                                onclick="return confirm('Delete this action?')">Delete</button>
                         </form>
                     </td>
                 </tr>

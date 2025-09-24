@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('authorisations', function (Blueprint $table) {
+            $table->foreignId('reviewed_by')->nullable()->constrained('users')->onDelete('set null'); // links to users
+            $table->text('comment')->nullable()->after('reviewercomment');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('authorisations', function (Blueprint $table) {
+            //
+        });
+    }
+};

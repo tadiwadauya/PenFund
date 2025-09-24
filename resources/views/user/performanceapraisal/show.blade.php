@@ -44,7 +44,7 @@
             </tr>
             @forelse($purposes as $purpose)
                 <tr>
-                    <td>{{ $purpose->purpose }}</td>
+                <td>{!! $purpose->purpose !!}</td>
                     <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
                   
                 </tr>

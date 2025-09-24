@@ -58,13 +58,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/manager/users/{user}', [ManagerDashboardController::class, 'show'])->name('manager.users.show');
 
     //view users to be approver appraisal with inline edit 
-    Route::get('/manager/appraisals/{user}', [ManagerDashboardController::class, 'apshow'])->name('manager.appraisals.apshow');
-    Route::get('/manager/appraisal/{periodId}', [ManagerDashboardController::class, 'apshow'])->name('manager.appraisal.show');
+    Route::get('/manager/appraisals/{user}', [ManagerDashboardController::class, 'apshow'])->name('manager.appraisal.show');
 
     
     // New approval routes
     Route::post('/manager/users/{user}/approve/{period}', [ManagerDashboardController::class, 'approve'])->name('manager.users.approve');
     Route::post('/manager/users/{user}/reject/{period}', [ManagerDashboardController::class, 'reject'])->name('manager.users.reject');
+
+
+// New athourize routes
+Route::post('/manager/appraisals/{user}/approve/{period}', [ManagerDashboardController::class, 'authorisation'])->name('manager.appraisals.approve');
+Route::post('/manager/appraisals/{user}/reject/{period}', [ManagerDashboardController::class, 'apreject'])->name('manager.appraisals.reject');
+
+
 
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
     Route::get('/manager/dashboardap', [ManagerDashboardController::class, 'appraisal'])->name('manager.dashboardap');
@@ -95,17 +101,28 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('targets', TargetController::class);
     Route::resource('objectives', ObjectiveController::class);
     Route::resource('purposes', PurposeController::class);
+    Route::resource('initiatives', InitiativeController::class);
 
-
+    //Manager updates
+     // Manager Purpose Routes
     Route::get('manager/purposes/{purpose}/edit', [PurposeController::class, 'managerEdit'])->name('manager.purposes.edit');
     Route::patch('manager/purposes/{purpose}', [PurposeController::class, 'managerUpdate'])->name('manager.purposes.update');
+
+    // Manager Objective Routes
+    Route::get('manager/objectives/{objective}/edit', [ObjectiveController::class, 'managerEdit'])->name('manager.objectives.edit');
+    Route::patch('manager/objectives/{objective}', [ObjectiveController::class, 'managerUpdate'])->name('manager.objectives.update');
     
+     // Manager Actions to support objectives Routes
+        // Manager Initiative Routes
+    Route::get('manager/initiatives/{initiative}/edit', [InitiativeController::class, 'managerEdit'])->name('manager.initiatives.edit');
+    Route::patch('manager/initiatives/{initiative}', [InitiativeController::class, 'managerUpdate'])->name('manager.initiatives.update');
+
     Route::match(['put', 'patch'], '/initiatives/{id}/update-inline', [InitiativeController::class, 'updateInline'])
     ->name('initiatives.updateInline');
     Route::get('/user/performance/{period}/appraisal-report', [InitiativeController::class, 'showAppraisalReport'])->name('user.performance.appraisal.report');
 
 // Full resource routes (index, create, store, show, edit, update, destroy)
-    Route::resource('initiatives', InitiativeController::class);
+   
 
     Route::get('/report', [ReportController::class, 'create'])->name('report.create');
     Route::get('/myreport', [ReportController::class, 'mycreate'])->name('report.mycreate');
