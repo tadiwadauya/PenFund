@@ -40,7 +40,7 @@
     <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
 
-        <label for="objective">objective:</label>
+        <label for="objective">Objective:</label>
         <input type="text" name="objective" value="{{ $objective->objective }}" class="form-control" required>
 
         </div>
@@ -63,7 +63,7 @@
         
             <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
-        <label for="target_id">Select Target:</label>
+        <label for="target_id">Select Key Task:</label>
         <select name="target_id" class="form-control select2" required>
             @foreach ($targets as $target)
                 <option value="{{ $target->id }}" {{ $target->id == $objective->target_id ? 'selected' : '' }}>

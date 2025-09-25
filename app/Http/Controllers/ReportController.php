@@ -46,6 +46,7 @@ class ReportController extends Controller
 
     // Get the employee
     $user = User::findOrFail($request->user_id);
+    $period = Period::findOrFail($request->period_id);
 
     // Fetch purposes for the user
     $purposes = Purpose::where('user_id', $user->id)
@@ -73,6 +74,7 @@ class ReportController extends Controller
         'user',
         'purposes',
         'objectives',
+        'period',
         'approvals',
         'superiors'
     ));

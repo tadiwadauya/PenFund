@@ -49,6 +49,24 @@ class ManagerDashboardController extends Controller
         return view('manager.dashboardap', compact('managedUsers'));
     }
     
+    public function reviewer()
+    {
+        $user = auth()->user();
+    
+        // ✅ Get all users supervised by the logged-in user
+        $managedUsersQuery = User::where('supervisor_id', $user->id)
+            ->where('id', '!=', $user->id); // exclude self just in case
+    
+        // ✅ Only include users who HAVE authorisations with "Authorized" status
+        $managedUsers = $managedUsersQuery->whereHas('authorisations', function ($query) {
+            $query->where('status', 'Authorized');
+        })->get();
+    
+        return view('manager.reviewerdash', compact('managedUsers'));
+    }
+    
+
+
     public function approve(User $user, $periodId)
     {
         $approval = Approval::where('user_id', $user->id)
@@ -81,6 +99,27 @@ class ManagerDashboardController extends Controller
     }
     
 
+    public function review(User $user, $periodId)
+    {
+
+        $request->validate([
+            'reviewercomment' => 'required|string|max:1000',
+        ]);
+
+        $authorisation = Authorisation::where('user_id', $user->id)
+                                      ->where('period_id', $periodId)
+                                      ->firstOrFail();
+    
+        $authorisation->update([
+            'status' => 'Reviewed',
+            'reviewercomment' => $request->reviewercomment,
+            'reviewed_by' => auth()->id(), // Set the approver
+        ]);
+    
+        return redirect()->route('manager.review.show', ['user' => $user->id])
+                         ->with('success', 'User reviewed successfully.');
+    }
+
 
     
 
@@ -103,6 +142,25 @@ public function reject(Request $request, User $user, $periodId)
         ->with('error', 'User rejected with comment.');
 }
 
+
+public function reviewreject(Request $request, User $user, $periodId)
+{
+    $request->validate([
+        'reviewercomment' => 'required|string|max:1000',
+    ]);
+
+    $authorisation = Authorisation::where('user_id', $user->id)
+                                  ->where('period_id', $periodId)
+                                  ->firstOrFail();
+
+    $authorisation->update([
+        'status' => 'Rejected',
+        'reviewercomment' => $request->comment,
+    ]);
+
+    return redirect()->route('manager.appraisal.show', ['user' => $user->id])
+                     ->with('error', 'User rejected with comment.');
+}
 
 public function apreject(Request $request, User $user, $periodId)
 {
@@ -193,6 +251,39 @@ public function apreject(Request $request, User $user, $periodId)
         
         
 
+           //departmental show details with inline edit and authorisation
+           public function reviewershow(User $user)
+           {
+               // Ensure logged-in manager can view this user
+               $authUser = auth()->user();
+           
+               // TODO: add department/section authorization if needed
+           
+               $purposes = Purpose::with('period')
+                                  ->where('user_id', $user->id)
+                                  ->get();
+           
+               $objectives = Objective::with(['period', 'target'])
+                                      ->where('user_id', $user->id)
+                                      ->get();
+           
+               $initiatives = Initiative::with(['period', 'target', 'objective'])
+                                        ->where('user_id', $user->id)
+                                        ->get();
+           
+               $authorisations = Authorisation::with('period')
+                                              ->where('user_id', $user->id)
+                                              ->get();
+           
+               return view('manager.reviewer', compact(
+                   'user',
+                   'purposes',
+                   'objectives',
+                   'initiatives',
+                   'authorisations'
+               ));
+           }
+           
         
     }
     

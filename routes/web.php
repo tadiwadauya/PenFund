@@ -17,6 +17,8 @@ use App\Http\Controllers\UserPurposeController;
 use App\Http\Controllers\ManagerDashboardController;
 use App\Http\Controllers\UserPerformanceController;
 use App\Http\Controllers\PerformanceApraisalController;
+use App\Http\Controllers\TaskController;
+
 
 
 
@@ -47,6 +49,10 @@ Route::get('/mypurpose', [ContractController::class, 'mypurpose'])->name('purpos
 
 
 
+//Task
+Route::resource('tasks', TaskController::class);
+
+
 Route::middleware(['auth'])->group(function () {
     Route::resource('purposes/mypurpose', UserPurposeController::class);
 
@@ -60,6 +66,10 @@ Route::middleware(['auth'])->group(function () {
     //view users to be approver appraisal with inline edit 
     Route::get('/manager/appraisals/{user}', [ManagerDashboardController::class, 'apshow'])->name('manager.appraisal.show');
 
+
+        //view users to be review appraisal with inline edit 
+    Route::get('/manager/reviewers/{user}', [ManagerDashboardController::class, 'reviewershow'])->name('manager.reviewer.show');
+
     
     // New approval routes
     Route::post('/manager/users/{user}/approve/{period}', [ManagerDashboardController::class, 'approve'])->name('manager.users.approve');
@@ -71,9 +81,17 @@ Route::post('/manager/appraisals/{user}/approve/{period}', [ManagerDashboardCont
 Route::post('/manager/appraisals/{user}/reject/{period}', [ManagerDashboardController::class, 'apreject'])->name('manager.appraisals.reject');
 
 
+//reviewing routes
+Route::post('/manager/reviewers/{user}/approve/{period}', [ManagerDashboardController::class, 'review'])->name('manager.reviewers.approve');
+Route::post('/manager/reviewers/{user}/reject/{period}', [ManagerDashboardController::class, 'reviewreject'])->name('manager.reviewers.reject');
+
+
+
 
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
     Route::get('/manager/dashboardap', [ManagerDashboardController::class, 'appraisal'])->name('manager.dashboardap');
+
+    Route::get('/manager/reviewerdash', [ManagerDashboardController::class, 'reviewer'])->name('manager.reviewerdash');
     
     Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
     Route::post('/appraisalreport/apgenerate', [ReportController::class, 'apgenerate'])->name('appraisalreport.apgenerate');

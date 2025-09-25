@@ -25,31 +25,42 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <table id="example1" class="table table-bordered table-striped">
-       
-        <thead>
+    <table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Target</th>
+            <th>User</th>
+            <th>Period</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($targets as $target)
             <tr>
-                <th>Target Name</th>
-                <th width="280px">Actions</th>
+                <td>{{ $target->target_name }}</td>
+                <td>{{ $target->user ? $target->user->first_name . ' ' . $target->user->last_name : '-' }}</td>
+                <td>{{ $target->period ? $target->period->year : '-' }}</td>
+                <td>
+                    <a href="{{ route('targets.show', $target->id) }}" class="btn btn-sm btn-info">Show</a>
+                    <a href="{{ route('targets.edit', $target->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ route('targets.destroy', $target->id) }}" method="POST" style="display:inline-block;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this target?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach($targets as $target)
-                <tr>
-                    <td>{{ $target->target_name }}</td>
-                    <td>
-                        <a class="btn btn-info" href="{{ route('targets.show', $target->id) }}">Show</a>
-                        <a class="btn btn-primary" href="{{ route('targets.edit', $target->id) }}">Edit</a>
-                        <form action="{{ route('targets.destroy', $target->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this purpose?');">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+        @empty
+            <tr>
+                <td colspan="4">No targets found.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
 </div>
 </section>
 </div>

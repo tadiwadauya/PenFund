@@ -60,6 +60,7 @@ class UsermanagementController extends Controller
             'department' => 'nullable|string|max:255',
             'section' => 'nullable|string|max:255',
             'supervisor_id' => 'nullable|string|max:255',
+            'reviewer_id' => 'nullable|string|max:10',
             'gender' => 'nullable|string|max:10', // Adjust max length as needed
             'dob' => 'nullable|date', // Ensure dob is a valid date            
             'is_admin' => 'required|integer|max:2', // Assuming roles is an array
@@ -128,6 +129,7 @@ class UsermanagementController extends Controller
             'gender' => 'nullable|string|max:10',
             'dob' => 'nullable|date',
             'supervisor_id' => 'nullable|string|max:10',
+            'reviewer_id' => 'nullable|string|max:10',
             'grade' => 'nullable|string|max:10',
         ]);
     

@@ -139,6 +139,17 @@
     </select>
 </div>
 
+<div class="col-xs-6 col-sm-6 col-md-6">
+        <div class="form-group">
+    <strong>Reviewer:</strong>
+    <select class="form-control select2" name="reviewer_id">
+        <option value="">Select Reviewer</option>
+        @foreach($users as $user)
+            <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->last_name }} ({{ $user->name }})</option>
+        @endforeach
+    </select>
+</div>
+
     </div>
     <div class="col-xs-6 col-sm-6 col-md-6">
     <div class="form-group">

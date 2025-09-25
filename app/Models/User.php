@@ -34,7 +34,8 @@ class User extends Authenticatable
         'dob',
         'grade',
         'is_admin',
-        'supervisor_id' // adding this
+        'supervisor_id', // adding this
+        'reviewer_id' // adding this
     ];
 
     /**
@@ -84,6 +85,12 @@ public function supervisor()
 {
     return $this->belongsTo(User::class, 'supervisor_id');
 }
+
+public function reviewer()
+{
+    return $this->belongsTo(User::class, 'reviewer_id');
+}
+
 
 public function subordinates()
 {

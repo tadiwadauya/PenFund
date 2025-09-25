@@ -15,121 +15,127 @@
         }
         th {
             background-color: #f2f2f2;
+            text-align: center;
         }
-        img {
-            border-radius: 50%;
+        .signature-block {
+            margin-top: 40px;
+            width: 100%;
+        }
+        .signature-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            gap: 20px; /* space between fields */
+        }
+        .signature-line label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .signature-line span {
+            border-bottom: 1px solid #000;
+            min-width: 150px;
+            display: inline-block;
+            padding: 2px 5px;
+        }
+        .signature-date {
+            margin-left: 0;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
 <center>
-   
-    <h1>LOCAL AUTHORITIES PENSION FUND</h1>
-    <h1>2025 PERFORMANCE CONTRACT</h1>
+    <h3>{{ strtoupper($user->department) }} DEPARTMENT</h3>
+    <h3>{{ strtoupper($user->jobtitle) }} - PERFORMANCE TARGETS FOR THE PERIOD JAN – DEC {{ $period->year }}</h3>
 </center>
 
+{{-- One table for all objectives/initiatives/targets --}}
 <table>
-    <tr>
-        <th><strong>Purpose</strong></th>
-        <th><strong>Employee Details</strong></th>
-    </tr>
-    <tr>
-        <td>
-            <ul>
-                @foreach($purposes as $purpose)
-                    {!! $purpose->purpose !!}
-                @endforeach
-            </ul>
-        </td>
-        <td>
-            <p><strong>Name of Employee:</strong> {{ $user->first_name }} {{ $user->last_name }}</p>
-            <p><strong>Department:</strong> {{ $user->department }}</p>
-            <p><strong>Section:</strong> {{ $user->section }}</p>
-            <p><strong>Position:</strong> {{ $user->jobtitle }}</p>
-            <p><strong>Job Grade:</strong> {{ $user->grade }}</p>
-            <p><strong>Superior Position:</strong> {{ $user->supervisor ? $user->supervisor->first_name . ' ' . $user->supervisor->last_name : 'N/A' }}</p>
-            <p><strong>Superior Job Grade:</strong> {{ $user->supervisor ? $user->supervisor->grade : 'N/A' }}</p>
-        </td>
-    </tr>
-</table>
-<h5>Rating Scale for Use Throughout the Form:</h5>
-<ul>
-    <li><strong>A1:</strong> Outstanding performance. High levels of expertise.</li>
-    <li><strong>A2:</strong> Consistently exceeds requirements.</li>
-    <li><strong>B1:</strong> Meets requirements. Occasionally exceeds them.</li>
-    <li><strong>B2:</strong> Meets requirements.</li>
-    <li><strong>C1:</strong> Partially meets requirements. Improvement required.</li>
-    <li><strong>C2:</strong> Unacceptable. Well below standard required.</li>
-</ul>
-
-
-
-{{-- Loop objectives and initiatives directly --}}
-@foreach($objectives as $objective)
-    <h3>{{ $objective->target->target_name ?? 'No Target' }}</h3>
-    <table>
+    <thead>
         <tr>
-            <th><strong>Objective</strong></th>
-            <th><strong>Actions to Support Objectives</strong></th>
-            <th><strong>Target/ Budget</strong></th>
+            <th>#</th>
+            <th>KEY TASK</th>
+            <th>OBJECTIVE</th>
+            <th>TASK</th>
+            <th>TARGET</th>
         </tr>
-
-        @forelse($objective->initiatives as $initiative)
-            <tr>
-                <td>{{ $objective->objective }}</td>
-                <td>{{ $initiative->initiative }}</td>
-                <td>{{ $initiative->budget }}</td>
-            </tr>
+    </thead>
+    <tbody>
+        @forelse($objectives as $index => $objective)
+            @php
+                $initiativeCount = $objective->initiatives->count() ?: 1;
+            @endphp
+            @foreach($objective->initiatives as $i => $initiative)
+                <tr>
+                    @if($i === 0)
+                        <td rowspan="{{ $initiativeCount }}">{{ $index + 1 }}</td>
+                        <td rowspan="{{ $initiativeCount }}">{{ $objective->target->target_name ?? 'No Target' }}</td>
+                        <td rowspan="{{ $initiativeCount }}">{{ $objective->objective }}</td>
+                    @endif
+                    <td >{{ $initiative->initiative }}</td>
+                    <td >{{ $initiative->budget }}</td>
+                </tr>
+            @endforeach
+            @if($objective->initiatives->isEmpty())
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $objective->target->target_name ?? 'No Target' }}</td>
+                    <td>{{ $objective->objective }}</td>
+                    <td colspan="2">No initiatives added</td>
+                </tr>
+            @endif
         @empty
             <tr>
-                <td>{{ $objective->objective }}</td>
-                <td colspan="2">No initiatives added</td>
+                <td colspan="5"><em>No objectives available for this period.</em></td>
             </tr>
         @endforelse
-    </table>
-@endforeach
+    </tbody>
+</table>
 
-{{-- If no objectives at all --}}
-@if($objectives->isEmpty())
-    <p><em>No objectives available for this period.</em></p>
-@endif
 
-<h4>Signatures</h4>
-<p>After discussing this assessment of the staff member’s overall performance, and after the reviewer assigns the final performance rating, both the staff member being assessed and Assessor sign here as confirmation of the discussion and confirmation they have seen the final ratings and reviewers comments. The Reviewer also signs.</p>
-<table style="width: 100%; margin-top: 30px;">
-    <tr>
-        <!-- Left side -->
-        <td style="width: 50%; text-align: left; vertical-align: bottom;">
-            <p>Incumbent’s Electronic Signature</p>
-           
 
-            {{-- ✅ Show approved user(s) --}}
-            @foreach($user->approvals->where('status', 'Approved') as $approval)
-                <p><strong>{{ $approval->user->name }} </strong></p>
-            @endforeach
-            <p>__________________________</p>
-            <label>Date:</label>
+
+
+{{-- Signatures --}}
+<div class="signature-block">
+
+    {{-- Incumbent --}}
+    <div class="signature-line">
+        <label>Incumbent Name:</label>
+        <span>{{ $user->first_name }} {{ $user->last_name }}</span>
+
+        <label>Signature:</label>
+        <span>{{ $user->name }}</span>
+    </div>
+    <div class="signature-date">
+        <label>Date:</label>
+        <span>
             @if($approvals->first())
                 {{ \Carbon\Carbon::parse($approvals->first()->created_at)->format('d-m-Y') }}
             @endif
-            
-        </td>
+        </span>
+    </div>
 
-        <!-- Right side -->
-        <td style="width: 50%; text-align: right; vertical-align: bottom;">
-            <p>Superior’s Electronic Signature</p>
-            @foreach($superiors as $superior)
-                <p><strong>{{ $superior->name }}</strong></p>
-            @endforeach
-            <p>__________________________</p>
-            <label>Date:</label>
+    {{-- Superior --}}
+    <div class="signature-line" style="margin-top:20px;">
+        <label>Human Resources Officer:</label>
+        
+            <span>Shadreck Chigango</span>
+
+        <label>Signature:</label>
+        <span>schigango</span>
+    </div>
+    <div class="signature-date">
+        <label>Date:</label>
+        <span>
             @if($approvals->first())
                 {{ \Carbon\Carbon::parse($approvals->first()->updated_at)->format('d-m-Y') }}
             @endif
-        </td>
-    </tr>
-</table>
+        </span>
+    </div>
+
+</div>
 
 </body>
 </html>

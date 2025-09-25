@@ -117,36 +117,47 @@ class InitiativeController extends Controller
         return redirect()->route('user.performance.index')->with('success', 'Initiative updated successfully.');
     }
 
-    public function updateInline(Request $request, $id)
-    {
-        $request->validate([
-            'archieved'         => 'required|boolean',   // must be 0 or 1
-            'rating'            => 'nullable|integer|min:1|max:6',
-            'supervisorrating'  => 'nullable|integer|min:1|max:6',
-            'comment'           => 'nullable|string|max:1000',
-        ]);
-    
-        $initiative = Initiative::findOrFail($id);
-    
-        // Only update the fields that were actually present in the form
-        $data = [
-            'archieved' => $request->input('archieved', 0),
-            'comment'   => $request->input('comment'),
-        ];
-    
-        if ($request->has('supervisorrating')) {
-            $data['supervisorrating'] = $request->input('supervisorrating');
-        }
-    
-        // Only update rating if it exists in the form (other blade)
-        if ($request->has('rating')) {
-            $data['rating'] = $request->input('rating');
-        }
-    
-        $initiative->update($data);
-    
-        return redirect()->back()->with('success', 'Initiative updated successfully.');
+
+
+   public function updateInline(Request $request, $id)
+{
+    $request->validate([
+        'archieved'        => 'required|boolean',   // must be 0 or 1
+        'rating'           => 'nullable|integer|min:1|max:6',
+        'supervisorrating' => 'nullable|integer|min:1|max:6',
+        'reviewerrating'   => 'nullable|integer|min:1|max:6',
+        'comment'          => 'nullable|string|max:1000',
+    ]);
+
+    $initiative = Initiative::findOrFail($id);
+
+    // Start with archieved since it’s always required
+    $data = [
+        'archieved' => $request->input('archieved', 0),
+    ];
+
+    if ($request->has('rating')) {
+        $data['rating'] = $request->input('rating');
     }
+
+    if ($request->has('supervisorrating')) {
+        $data['supervisorrating'] = $request->input('supervisorrating');
+    }
+
+    if ($request->has('reviewerrating')) {
+        $data['reviewerrating'] = $request->input('reviewerrating');
+    }
+
+    if ($request->has('comment')) {
+        $data['comment'] = $request->input('comment');
+    }
+
+    $initiative->update($data);
+
+    return redirect()->back()->with('success', 'Initiative updated successfully.');
+}
+
+    
     
     
     // Remove the specified Initiative from storage

@@ -125,6 +125,19 @@
         </select>
     </div>
 </div>
+<div class="col-xs-6 col-sm-6 col-md-6">
+    <div class="form-group">
+        <strong>Reviewer:</strong>
+        <select class="form-control select2" name="reviewer_id">
+            <option value="">Select Reviewer</option>
+            @foreach($users as $reviewer)
+                <option value="{{ $reviewer->id }}" {{ $user->reviewer_id == $reviewer->id ? 'selected' : '' }}>
+                    {{ $reviewer->first_name }} {{ $reviewer->last_name }} ({{ $reviewer->name }})
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
 
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">

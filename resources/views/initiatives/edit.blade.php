@@ -13,10 +13,10 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <div class="pull-left">
-            <h1>Edit Action To Support Objective</h1>
+            <h1>Edit Task</h1>
         </div>
         <div class="pull-right">
-            <a class="btn btn-primary" href="{{ url('myinitiative') }}"> Back</a>
+            <a class="btn btn-primary" href="{{ route('user.performance.index') }}"> Back</a>
         </div>
     </div>
 </div>
@@ -50,7 +50,7 @@
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
-                    <label for="initiative">Action to support Objective:</label>
+                    <label for="initiative">Task:</label>
                     <input type="text" name="initiative" value="{{ $initiative->initiative }}" class="form-control" required>
                 </div>
             </div>   
@@ -70,7 +70,7 @@
             </div>  
             <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
-                    <label for="target_id">Select Target:</label>
+                    <label for="target_id">Select Key Task:</label>
                     <select name="target_id" class="form-control select2" required>
                         @foreach ($targets as $target)
                             <option value="{{ $target->id }}" {{ $target->id == $initiative->target_id ? 'selected' : '' }}>

@@ -11,7 +11,9 @@ class Target extends Model
     use HasFactory;
     
     protected $fillable = [
-        'target_name'
+        'target_name',
+        'user_id',
+        'period_id',
     ];
 
     /**
@@ -21,4 +23,14 @@ class Target extends Model
     {
         return $this->hasMany(Objective::class);
     }
+
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
+
+public function period()
+{
+    return $this->belongsTo(Period::class);
+}
 }

@@ -11,6 +11,7 @@ use App\Models\Department;
 use App\Models\Section;
 use App\Models\Purpose;
 use App\Models\Approval;
+use App\Models\Task;
 use Illuminate\Http\Request;
 
 class UserPerformanceController extends Controller
@@ -31,19 +32,47 @@ class UserPerformanceController extends Controller
     // Show data for a specific period
     public function show($periodId)
     {
-        $user = auth()->user();
-
+        $user = auth()->user()->load('supervisor','reviewer'); // ✅ eager load supervisor
+    
         $period = Period::findOrFail($periodId);
+    
+        $purposes = Purpose::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->get();
+    
+        $objectives = Objective::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->get();
 
-        $purposes = Purpose::where('user_id', $user->id)->where('period_id', $periodId)->get();
-        $objectives = Objective::where('user_id', $user->id)->where('period_id', $periodId)->get();
-        $initiatives = Initiative::where('user_id', $user->id)->where('period_id', $periodId)->get();
+            $tasks = Task::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->get();
 
-        // Check if approval exists
-        $approval = Approval::where('user_id', $user->id)->where('period_id', $periodId)->first();
-
-        return view('user.performance.show', compact('period', 'purposes', 'objectives', 'initiatives', 'approval'));
+            $targets = Target::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->get();
+    
+        $initiatives = Initiative::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->get();
+    
+        $approval = Approval::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->first();
+    
+        return view('user.performance.show', compact(
+            'user',
+            'period',
+            'purposes',
+            'objectives',
+            'tasks',
+            'initiatives',
+            'targets',
+            'approval'
+        ));
     }
+    
+    
 
     // Submit for approval
     public function submitForApproval($periodId)
