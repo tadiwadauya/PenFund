@@ -7,62 +7,92 @@
 <div class="content-wrapper">
 <section class="content">
 <div class="container-fluid">
+<h3>{{ $user->department }}</h3>
+    <h3> {{ $user->jobtitle }} PERFORMANCE TARGETS FOR THE PERIOD JAN – DEC {{ $period->year }}</h3>
 
-    <h1>Performance Target for {{ $user->name }}</h1>
+    {{-- ================== USER DETAILS ================== --}}
+    <table class="table table-bordered mb-4">
+    <tr>
+        <!-- Employee Details (Left) -->
+        <td width="50%">
+            <p><strong>Name of Staff Member Being Assessed:</strong> {{ $user->first_name }} {{ $user->last_name }}</p>
+            <p><strong>Department:</strong> {{ $user->department }}</p>
+            <p><strong>Section:</strong> {{ $user->section }}</p>
+            <p><strong>Job Title:</strong> {{ $user->jobtitle }}</p>
+            <p><strong>Grade:</strong> {{ $user->grade }}</p>
+        </td>
 
-    {{-- Purposes --}}
-    <h3>Purposes</h3>
-    <a href="{{ route('purposes.create') }}" class="btn btn-primary mb-2">Add Purpose</a>
+        <!-- Supervisor Details (Right) -->
+        <td width="50%">
+            <p><strong>Assessor:</strong> {{ $user->supervisor ? $user->supervisor->first_name . ' ' . $user->supervisor->last_name : 'N/A' }}</p>
+            <p><strong>Reviewer:</strong> {{ $user->reviewer ? $user->reviewer->first_name . ' ' . $user->reviewer->last_name : 'N/A' }}</p>
+            <p><strong>Review Period:</strong> From 01 January {{ $period->year }} to  December {{ $period->year }}</p>
+            <!-- <p><strong>Superior Department:</strong> {{ $user->supervisor ? $user->supervisor->department : 'N/A' }}</p>
+            <p><strong>Superior Section:</strong> {{ $user->supervisor ? $user->supervisor->section : 'N/A' }}</p> -->
+        </td>
+    </tr>
+</table>
+
+{{-- KEY TASK --}}
+    <a href="{{ route('targets.create') }}" class="btn btn-primary ml-auto">Add New Key Task</a>
+    <h3>KEY TASK</h3>
     <table class="table table-bordered">
-        <thead>
+    <thead>
+        <tr>
+            <th>Key Task</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($targets as $target)
             <tr>
-                <th>Purpose</th>
-                <th>Period</th>
-                <th>Created At</th>
-                <th>Actions</th>
+                <td>{{ $target->target_name }}</td>
+                <td>
+                    
+                   
+                    <form action="{{ route('targets.destroy', $target->id) }}" method="POST" style="display:inline-block;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this task?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @forelse($purposes as $purpose)
-                <tr>
-                <td>{!! $purpose->purpose !!}</td>
-                    <td>{{ $purpose->period->year ?? '-' }}</td>
-                    <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
-                    <td>
-                        <a href="{{ route('manager.purposes.edit', $purpose->id) }}" class="btn btn-warning">Edit</a>
-                        <form action="{{ route('purposes.destroy', $purpose->id) }}" method="POST" style="display:inline;">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Delete this purpose?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr><td colspan="4">No purposes found.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+        @empty
+            <tr>
+                <td colspan="4">No targets found.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
+
+    
+    <br>
+<hr>
+<br>
+
 
     {{-- Objectives --}}
-    <h3>Objectives</h3>
+    <h3>OBJECTIVES</h3>
     <a href="{{ route('objectives.create') }}" class="btn btn-primary mb-2">Add Objective</a>
     <table class="table table-bordered">
         <thead>
             <tr>
+                <th>Key Task</th>
                 <th>Objective</th>
-                <th>Target</th>
-                <th>Period</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($objectives as $objective)
                 <tr>
-                    <td>{{ $objective->objective }}</td>
                     <td>{{ $objective->target->target_name ?? '-' }}</td>
-                    <td>{{ $objective->period->year ?? '-' }}</td>
+                    <td>{{ $objective->objective }}</td>
                     <td>
-                        <a href="{{ route('manager.objectives.edit', $objective->id) }}" class="btn btn-warning">Edit</a>
+                       
                         <form action="{{ route('objectives.destroy', $objective->id) }}" method="POST" style="display:inline;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger"
@@ -77,27 +107,26 @@
     </table>
 
     {{-- Initiatives --}}
-    <h3>Action to support objectives</h3>
+    <h3>Task and Targets</h3>
     <a href="{{ route('initiatives.create') }}" class="btn btn-primary mb-2">Add Action</a>
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Initiative</th>
+                <th>Key Task</th>
                 <th>Objective</th>
+                <th>Task</th>
                 <th>Target</th>
-                <th>Period</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($initiatives as $initiative)
                 <tr>
-                    <td>{{ $initiative->initiative }}</td>
-                    <td>{{ $initiative->objective->objective ?? '-' }}</td>
                     <td>{{ $initiative->target->target_name ?? '-' }}</td>
-                    <td>{{ $initiative->period->year ?? '-' }}</td>
+                    <td>{{ $initiative->objective->objective ?? '-' }}</td>
+                    <td>{{ $initiative->initiative }}</td>
+                    <td>{{ $initiative->budget }}</td>
                     <td>
-                    <a href="{{ route('manager.initiatives.edit', $initiative->id) }}" class="btn btn-warning">Edit</a>
                         <form action="{{ route('initiatives.destroy', $initiative->id) }}" method="POST" style="display:inline;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger"

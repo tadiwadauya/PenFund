@@ -7,9 +7,6 @@
 <div class="content-wrapper">
 <section class="content">
 <div class="container-fluid">
-
-<a href="{{ route('mypurpose.create') }}" class="btn btn-primary ml-auto">Add Purpose</a>
-<a href="{{ route('periods.create') }}" class="btn btn-primary ml-auto">Add Period</a>
     <h1>My Performance Periods</h1>
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>

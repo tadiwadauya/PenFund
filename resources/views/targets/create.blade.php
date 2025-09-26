@@ -9,7 +9,7 @@
             <div class="container-fluid">
                 <div class="row mb-3">
                     <div class="col-lg-6">
-                        <h1>Create Target</h1>
+                        <h1>Create Key Task</h1>
                     </div>
                     <div class="col-lg-6 text-right">
                         <a class="btn btn-primary" href="{{ route('targets.index') }}"> Back</a>

@@ -33,7 +33,9 @@
         </td>
     </tr>
 </table>
-
+@if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
     @php
     $status = $approval->status ?? 'Not Submitted';
 
@@ -132,33 +134,39 @@
     {{-- Task --}}
     <a href="{{ route('objectives.create') }}" class="btn btn-primary ml-auto">Add New Objective</a>
     <h3>OBJECTIVES</h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Key Tasks</th>
-                <th>Objectives</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($objectives as $objective)
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Key Task</th>
+            <th>Objective</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($objectives->whereNotNull('target_id') as $objective)
+            @if($objective->target) {{-- only show if linked to a valid target --}}
                 <tr>
-                    <td>{{ $objective->target->target_name ?? '-' }}</td>
+                    <td>{{ $objective->target->target_name }}</td>
                     <td>{{ $objective->objective }}</td>
                     <td>
                         <a href="{{ route('objectives.edit', $objective->id) }}" class="btn btn-sm btn-warning">Edit</a>
                         <form action="{{ route('objectives.destroy', $objective->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this objective?')">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Are you sure you want to delete this objective?')">
+                                Delete
+                            </button>
                         </form>
                     </td>
                 </tr>
-            @empty
-                <tr><td colspan="3">No objectives found.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+            @endif
+        @empty
+            <tr><td colspan="3">No objectives found.</td></tr>
+        @endforelse
+    </tbody>
+</table>
+
     <br>
 <hr>
 <br>

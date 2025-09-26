@@ -39,21 +39,24 @@ class TargetController extends Controller
      * Store a newly created target in storage.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'target_name' => 'required|string|max:255|unique:targets,target_name',
-            'period_id'   => 'required|exists:periods,id',
-        ]);
+{
+    $request->validate([
+        'target_name' => 'required|string|max:255|unique:targets,target_name',
+        'period_id'   => 'required|exists:periods,id',
+    ]);
 
-        Target::create([
-            'target_name' => $request->target_name,
-            'period_id'   => $request->period_id,
-            'user_id'     => auth()->id(), // always logged-in user
-        ]);
+    // Create the target and capture it in a variable
+    $target = Target::create([
+        'target_name' => $request->target_name,
+        'period_id'   => $request->period_id,
+        'user_id'     => auth()->id(), // always logged-in user
+    ]);
 
-        return redirect()->route('targets.index')
-                         ->with('success', 'Target created successfully.');
-    }
+    // Use the correct route parameter name
+    return redirect()->route('user.performance.show', ['period' => $target->period_id])
+                     ->with('success', 'Key Task created successfully.');
+}
+
 
     /**
      * Display the specified target.
@@ -89,8 +92,11 @@ class TargetController extends Controller
             'user_id'     => auth()->id(), // override user_id
         ]);
 
-        return redirect()->route('user.performance.index')
-                         ->with('success', 'Key Task updated successfully.');
+        $userId = $target->user_id; // Ensure this field exists in the initiatives table
+        $periodId = $target->period_id;
+
+        return redirect()->route('user.performance.show', ['period' => $periodId])->with('success', 'Key Task updated successfully.');
+                        
     }
 
     /**
@@ -100,7 +106,10 @@ class TargetController extends Controller
     {
         $target->delete();
 
-        return redirect()->route('targets.index')
-                         ->with('success', 'Target deleted successfully.');
+        $userId = $target->user_id; // Ensure this field exists in the initiatives table
+        $periodId = $target->period_id;
+
+        return redirect()->route('user.performance.show', ['period' => $periodId])->with('success', 'Key Task deleted successfully.');
+           
     }
 }

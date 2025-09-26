@@ -40,49 +40,51 @@
             </a>
         </li>
 
+
         <!-- Performance Link -->
         <li class="nav-item">
             <a href="#" class="nav-link {{ Request::is('periods') || Request::is('targets') || Request::is('purposes/mypurpose')|| Request::is('my/performance') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
-                    Performance Target
+                     Task
                     <i class="fas fa-angle-left right"></i>
      
                 </p>
             </a>
             <ul class="nav nav-treeview">
+            @auth
+            @if(auth()->user()->is_admin == 1)
             <li class="nav-item">
                     <a href="{{ url('/periods')}}" class="nav-link {{ Request::is('periods')  ? 'active' : '' }}" >
                         <i class="far fa-circle nav-icon"></i>
                         <p>Periods</p>
                     </a>
                 </li>
-                @auth
-    @if(auth()->user()->is_admin == 1)
-        <li class="nav-item">
-            <a href="{{ url('/targets')}}" class="nav-link {{ Request::is('targets')  ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Targets</p>
-            </a>
-        </li>
-    @endif
+                @endif
 @endauth
 <li class="nav-item">
-                    <a href="{{ url('/purposes/mypurpose')}}" class="nav-link {{ Request::is('purposes/mypurpose')  ? 'active' : '' }}" >
+                    <a href="{{ url('/purposes/mypurpose/create')}}" class="nav-link {{ Request::is('purposes/mypurpose')  ? 'active' : '' }}" >
                         <i class="far fa-circle nav-icon"></i>
-                        <p>Purpose</p>
+                        <p>Perfomance Period </p>
                     </a>
                 </li>
+
                 
                 <li class="nav-item">
                     <a href="{{ url('/my/performance')}}" class="nav-link {{ Request::is('my/performance')  ? 'active' : '' }}" >
                         <i class="far fa-circle nav-icon"></i>
-                        <p>Perfomance Target</p>
+                        <p>My Task</p>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a href="{{ url('/manager/dashboard')}}" class="nav-link {{ Request::is('manager/dashboard')  ? 'active' : '' }}" >
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Manage Targets</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/manager/departmentaltarget')}}" class="nav-link {{ Request::is('manager/departmentaltarget')  ? 'active' : '' }}" >
                         <i class="far fa-circle nav-icon"></i>
                         <p>Department Targets</p>
                     </a>

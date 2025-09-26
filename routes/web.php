@@ -61,10 +61,16 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::get('/manager/users', [ManagerDashboardController::class, 'index'])->name('manager.users.index');
-    Route::get('/manager/users/{user}', [ManagerDashboardController::class, 'show'])->name('manager.users.show');
-
+     Route::get('/manager/users/{user}/{periodId}', [ManagerDashboardController::class, 'show'])
+    ->name('manager.user.show');
     //view users to be approver appraisal with inline edit 
     Route::get('/manager/appraisals/{user}', [ManagerDashboardController::class, 'apshow'])->name('manager.appraisal.show');
+
+
+    // Approved Users
+    Route::get('/manager/departmentaltarget', [ManagerDashboardController::class, 'target'])->name('manager.departmentaltarget.targets');
+    Route::get('/manager/departmentaltarget/{user}/{periodId}', [ManagerDashboardController::class, 'targets'])
+    ->name('manager.user.target');
 
 
         //view users to be review appraisal with inline edit 

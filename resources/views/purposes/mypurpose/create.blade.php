@@ -14,7 +14,7 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <div class="pull-left">
-    <h1>Create Purpose</h1>
+    <h1>Create Perfomance Target Period</h1>
     </div>
         <div class="pull-right">
             <a class="btn btn-primary" href="{{ route('mypurpose.index') }}"> Back</a>
@@ -37,9 +37,9 @@
 <form action="{{ route('mypurpose.store') }}" method="POST">
         @csrf
         <div class="form-group">
-        <div class="card-body">
+        <!-- <div class="card-body">
               <textarea id="purpose" name="purpose"></textarea>
-            </div>
+            </div> -->
         <div class="form-group">
             <label for="period_id">Period</label>
             <select class="form-control" name="period_id" id="period_id" required>
@@ -48,7 +48,7 @@
                 @endforeach
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">Create Purpose</button>
+        <button type="submit" class="btn btn-primary">Create </button>
     </form>
     </div>
 </section>

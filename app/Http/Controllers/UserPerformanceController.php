@@ -40,8 +40,9 @@ class UserPerformanceController extends Controller
             ->where('period_id', $periodId)
             ->get();
     
-        $objectives = Objective::where('user_id', $user->id)
+            $objectives = Objective::where('user_id', $user->id)
             ->where('period_id', $periodId)
+            ->whereHas('target') // ✅ only fetch objectives that have a target
             ->get();
 
             $tasks = Task::where('user_id', $user->id)

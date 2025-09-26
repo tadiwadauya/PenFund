@@ -120,11 +120,11 @@
     {{-- Superior --}}
     <div class="signature-line" style="margin-top:20px;">
         <label>Human Resources Officer:</label>
-        
+        @if($approvals->first())
             <span>Shadreck Chigango</span>
 
         <label>Signature:</label>
-        <span>schigango</span>
+        <span>schigango</span>   @endif
     </div>
     <div class="signature-date">
         <label>Date:</label>

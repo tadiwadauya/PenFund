@@ -54,16 +54,17 @@
 </div>
 
     
-    <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group">
-        <label for="target_id">Select Target:</label>
-        <select name="target_id" class="form-control select2"  required>
+<div class="col-xs-6 col-sm-6 col-md-6">
+    <div class="form-group">
+        <label for="target_id">Key Task:</label>
+        <select name="target_id" class="form-control select2" required>
             @foreach ($targets as $target)
                 <option value="{{ $target->id }}">{{ $target->target_name }}</option>
             @endforeach
         </select>
-        </div>
-            </div> 
+    </div>
+</div>
+
 
     </div>
 

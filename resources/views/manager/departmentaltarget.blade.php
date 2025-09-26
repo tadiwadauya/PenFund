@@ -8,7 +8,7 @@
 <section class="content">
 <div class="container-fluid">
 
-    <h1>Manage Department Perfomance Targets</h1>
+    <h1>Finalised Tagets</h1>
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
@@ -28,7 +28,7 @@
                     <td>{{ $mUser->department }}</td>
                     <td>{{ $mUser->section }}</td>
                     <td>
-                    <a href="{{ route('manager.user.show', [$mUser->id, $period->id]) }}" class="btn btn-info">View</a>
+                    <a href="{{ route('manager.user.target', [$mUser->id, $period->id]) }}" class="btn btn-info">View</a>
 
                     </td>
                 </tr>

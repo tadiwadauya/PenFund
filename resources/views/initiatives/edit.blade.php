@@ -36,18 +36,7 @@
             </div>
         @endif
         <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label for="user_id">Select User:</label>
-                    <select name="user_id" class="form-control select2" required>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}" {{ $user->id == $initiative->user_id ? 'selected' : '' }}>
-                                {{ $user->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>   
-            </div>
+            
             <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
                     <label for="initiative">Task:</label>
@@ -69,17 +58,18 @@
                 </div>
             </div>  
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label for="target_id">Select Key Task:</label>
-                    <select name="target_id" class="form-control select2" required>
-                        @foreach ($targets as $target)
-                            <option value="{{ $target->id }}" {{ $target->id == $initiative->target_id ? 'selected' : '' }}>
-                                {{ $target->target_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>  
+    <div class="form-group">
+        <label for="target_id">Select Key Task:</label>
+        <select name="target_id" class="form-control select2" required>
+        @foreach ($targets as $target)
+                <option value="{{ $target->id }}" {{ $target->id == $initiative->target_id ? 'selected' : '' }}>
+                    {{ $target->target_name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
+
         </div>
 
         <div class="row">

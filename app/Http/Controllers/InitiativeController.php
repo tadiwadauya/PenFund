@@ -54,37 +54,45 @@ class InitiativeController extends Controller
     // Show the form for creating a new Initiative
     public function create()
     {
-        // only list objectives that belong to the logged-in user for the selected period
-        $objectives = Objective::where('user_id', auth()->id())->get();
-        $targets = Target::all();
+        $user = auth()->user(); // logged-in user
     
-        return view('initiatives.create', compact('objectives', 'targets'));
+        // Only list objectives that belong to the logged-in user
+        $objectives = Objective::where('user_id', $user->id)->get();
+    
+        // Only list targets that belong to the logged-in user
+        $targets = Target::where('user_id', $user->id)->get();
+    
+        return view('initiatives.create', compact('objectives', 'targets',));
     }
-
+    
     // Store a newly created initiative in storage
     public function store(Request $request)
-{
-    $request->validate([
-        'objective_id' => 'required|exists:objectives,id',
-        'target_id'    => 'required|exists:targets,id',
-        'initiative'   => 'required|string',
-        'budget'       => 'nullable|string',
-    ]);
-
-    // ✅ get the objective so we inherit its user + period
-    $objective = Objective::findOrFail($request->objective_id);
-
-    $objective->initiatives()->create([
-        'user_id'    => $objective->user_id,   // always matches objective’s user
-        'period_id'  => $objective->period_id, // always matches objective’s period
-        'target_id'  => $request->target_id,
-        'initiative' => $request->initiative,
-        'budget'     => $request->budget,
-        'createdby'  => auth()->user()->name,
-    ]);
-
-    return redirect()->back()->with('success', 'Objective created successfully.');
-}
+    {
+        $request->validate([
+            'objective_id' => 'required|exists:objectives,id',
+            'target_id'    => 'required|exists:targets,id',
+            'initiative'   => 'required|string',
+            'budget'       => 'nullable|string',
+        ]);
+    
+        // Get the objective so we inherit its user + period
+        $objective = Objective::findOrFail($request->objective_id);
+    
+        $initiative = $objective->initiatives()->create([
+            'user_id'    => $objective->user_id,   // matches objective’s user
+            'period_id'  => $objective->period_id, // matches objective’s period
+            'target_id'  => $request->target_id,
+            'initiative' => $request->initiative,
+            'budget'     => $request->budget,
+            'createdby'  => auth()->user()->name,
+        ]);
+    
+        $periodId = $objective->period_id;
+    
+        return redirect()->route('user.performance.show', ['period' => $periodId])
+        ->with('success', 'Task and Target created successfully.');
+    }
+    
 
     // Display the specified Initiative
     public function show(Initiative $initiative)
@@ -95,27 +103,40 @@ class InitiativeController extends Controller
     // Show the form for editing the specified Initiative
     public function edit(Initiative $initiative)
     {
-        $users = User::all();
+        $user = auth()->user(); // logged-in user
         $periods = Period::all();
-        $targets = Target::all();
+        $targets = Target::where('user_id', $user->id)->get();
         $objectives = Objective::all();
-        return view('initiatives.edit', compact('initiative', 'users', 'periods', 'targets','objectives'));
+        return view('initiatives.edit', compact('initiative', 'periods', 'targets','objectives'));
     }
 
     // Update the specified Initiative in storage
     public function update(Request $request, Initiative $initiative)
     {
         $request->validate([
-           
-            'period_id' => 'required|exists:periods,id',
-            'target_id' => 'required|exists:targets,id',
-            'objective_id' => 'required|string',
+            'period_id'    => 'required|exists:periods,id',
+            'target_id'    => 'required|exists:targets,id',
+            'objective_id' => 'required|exists:objectives,id',
+            'initiative'   => 'required|string|max:255',
+            'budget'       => 'nullable|string|max:255',
         ]);
-
-        $initiative->update($request->all());
-
-        return redirect()->route('user.performance.index')->with('success', 'Initiative updated successfully.');
+    
+        $initiative->update([
+            'user_id'      => auth()->id(),
+            'period_id'    => $request->period_id,
+            'target_id'    => $request->target_id,
+            'objective_id' => $request->objective_id,
+            'initiative'   => $request->initiative,
+            'budget'       => $request->budget,
+        ]);
+    
+        return redirect()->route('user.performance.show', ['period' => $initiative->period_id])
+                         ->with('success', 'Task and Targets updated successfully.');
     }
+    
+    
+    
+    
 
 
 

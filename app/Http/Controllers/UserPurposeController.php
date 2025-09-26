@@ -29,7 +29,6 @@ class UserPurposeController extends Controller
     {
         // Validate the incoming request
         $request->validate([
-            'purpose' => 'required|string',
             'period_id' => 'required|exists:periods,id',
         ]);
         
@@ -45,7 +44,6 @@ class UserPurposeController extends Controller
         // Create a new purpose with the authenticated user's ID
         Purpose::create([
             'user_id' => Auth::id(), // Set the user_id to the authenticated user's ID
-            'purpose' => $request->purpose,
             'period_id' => $request->period_id,
         ]);
         
