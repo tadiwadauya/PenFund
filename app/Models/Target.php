@@ -14,8 +14,14 @@ class Target extends Model
         'target_name',
         'user_id',
         'period_id',
+        'self_rating',
+        'self_comment',
+        'assessor_rating',
+        'assessor_comment',
+        'reviewer_rating',
+        'reviewer_comment',
     ];
-
+    
     /**
      * Get the objectives associated with the target.
      */

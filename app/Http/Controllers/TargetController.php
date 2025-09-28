@@ -99,6 +99,28 @@ class TargetController extends Controller
                         
     }
 
+    public function updateInlineTarget(Request $request, $id)
+    {
+        $request->validate([
+            'self_rating'  => 'nullable|integer|min:1|max:6',
+            'self_comment' => 'nullable|string|max:1000',
+        ]);
+    
+        $target = Target::findOrFail($id);
+    
+        $target->update([
+            'self_rating'  => $request->input('self_rating'),
+            'self_comment' => $request->input('self_comment'),
+        ]);
+    
+        return redirect()->back()->with('success', 'Self-assessment updated successfully.');
+    }
+    
+
+    
+    
+
+
     /**
      * Remove the specified target from storage.
      */
@@ -112,4 +134,6 @@ class TargetController extends Controller
         return redirect()->route('user.performance.show', ['period' => $periodId])->with('success', 'Key Task deleted successfully.');
            
     }
+
+
 }

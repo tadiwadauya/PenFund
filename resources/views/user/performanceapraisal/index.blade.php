@@ -8,7 +8,7 @@
 <section class="content">
 <div class="container-fluid">
 
-    <h1>My Performance Appraisal Periods</h1>
+    <h1>My Performance Assessment</h1>
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif

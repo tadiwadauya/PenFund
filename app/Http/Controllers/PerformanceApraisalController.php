@@ -34,7 +34,7 @@ class PerformanceApraisalController extends Controller
         return view('user.performanceapraisal.index', compact('periods'));
     }
     
-    public function show($periodId)
+    public function show(User $user, $periodId)
     {
         $user = auth()->user();
 
@@ -47,7 +47,7 @@ class PerformanceApraisalController extends Controller
         // Check if Authorisation exists
         $authorisation = Authorisation::where('user_id', $user->id)->where('period_id', $periodId)->first();
 
-        return view('user.performanceapraisal.show', compact('period', 'purposes', 'objectives', 'initiatives', 'authorisation'));
+        return view('user.performanceapraisal.show', compact('user','period', 'purposes', 'objectives', 'initiatives', 'authorisation'));
     }
 
     

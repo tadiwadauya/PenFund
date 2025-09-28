@@ -26,98 +26,219 @@
     </style>
 </head>
 <body>
+<style>
+    .user-details {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #f8f9fa; /* light grey */
+        margin-bottom: 20px;
+    }
+    .user-details th,
+    .user-details td {
+        border: 1px solid #fff; /* white borders */
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+    }
+    .user-details th {
+        font-weight: bold;
+        width: 40%;
+    }
+</style>
 
-<center>
-   
-    <h1>LOCAL AUTHORITIES PENSION FUND</h1>
-    <h1>{{ $period->year }} PERFORMANCE APPRAISAL</h1>
-</center>
+<div style="width: 100%; background-color: #d6d6d6; padding: 0; margin: 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <!-- Name & Assessor Row -->
+        <tr style="border-bottom: 2px solid white;">
+            <td style="padding: 6px; font-weight: bold; width: 20%; border-right: none;">Name of Staff Member:</td>
+            <td style="padding: 6px; width: 30%; border-right: none;">{{ $user->first_name }} {{ $user->last_name }}</td>
 
-<table>
-    <tr>
-        <th><strong>Purpose</strong></th>
-        <th><strong>Employee Details</strong></th>
-    </tr>
-    <tr>
-        <td>
-            
-                @foreach($purposes as $purpose)
-                    {!! $purpose->purpose !!}
-                @endforeach
-            
-        </td>
-        <td>
-            <p><strong>Name of Employee:</strong> {{ $user->first_name }} {{ $user->last_name }}</p>
-            <p><strong>Department:</strong> {{ $user->department }}</p>
-            <p><strong>Section:</strong> {{ $user->section }}</p>
-            <p><strong>Position:</strong> {{ $user->jobtitle }}</p>
-            <p><strong>Job Grade:</strong> {{ $user->grade }}</p>
-        </td>
-    </tr>
-</table>
-
-{{-- Rating Labels --}}
-@php
-    $labels = [
-        6 => 'A1',
-        5 => 'A2',
-        4 => 'B1',
-        3 => 'B2',
-        2 => 'C1',
-        1 => 'C2',
-    ];
-@endphp
-
-{{-- Loop objectives by target --}}
-@foreach($objectives as $objective)
-    <h3>{{ $objective->target->target_name ?? 'No Target' }}</h3>
-    <table>
-        <tr>
-            <th>Objective</th>
-            <th>Action / Initiative</th>
-            <th>Target / Budget</th>
-            <th>Achieved</th>
-            <th>Rating</th>
-            <th>Comment</th>
+            <td style="padding: 6px; font-weight: bold; width: 20%; border-left: 2px solid white;">Assessor:</td>
+            <td style="padding: 6px; width: 30%;">{{ $user->supervisor ? $user->supervisor->first_name . ' ' . $user->supervisor->last_name : 'N/A' }}</td>
         </tr>
-        @forelse($objective->initiatives as $initiative)
+
+        <!-- Department & Reviewer Row -->
+        <tr style="border-bottom: 2px solid white;">
+            <td style="padding: 6px; font-weight: bold;">Department:</td>
+            <td style="padding: 6px;">{{ $user->department }}</td>
+
+            <td style="padding: 6px; font-weight: bold; border-left: 2px solid white;">Reviewer:</td>
+            <td style="padding: 6px;">{{ $user->reviewer ? $user->reviewer->first_name . ' ' . $user->reviewer->last_name : 'N/A' }}</td>
+        </tr>
+
+        <!-- Section & Review Period Row -->
+        <tr style="border-bottom: 2px solid white;">
+            <td style="padding: 6px; font-weight: bold;">Section:</td>
+            <td style="padding: 6px;">{{ $user->section }}</td>
+
+            <td style="padding: 6px; font-weight: bold; border-left: 2px solid white;">Review Period:</td>
+            <td style="padding: 6px;">From 01 January {{ $period->year }} to December {{ $period->year }}</td>
+        </tr>
+
+        <!-- Job Title & Empty -->
+        <tr style="border-bottom: 2px solid white;">
+            <td style="padding: 6px; font-weight: bold;">Job Title:</td>
+            <td style="padding: 6px;">{{ $user->jobtitle }}</td>
+
+            <td style="padding: 6px; font-weight: bold; border-left: 2px solid white;"></td>
+            <td style="padding: 6px;"></td>
+        </tr>
+
+        <!-- Grade & Empty -->
+        <tr style="border-bottom: 2px solid white;">
+            <td style="padding: 6px; font-weight: bold;">Grade:</td>
+            <td style="padding: 6px;">{{ $user->grade }}</td>
+
+            <td style="padding: 6px; font-weight: bold; border-left: 2px solid white;"></td>
+            <td style="padding: 6px;"></td>
+        </tr>
+    </table>
+</div>
+
+
+
+<style>
+    .rating-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    .rating-table th {
+        background-color: #d6d6d6; /* dark grey */
+        color: #000000;
+        padding: 8px;
+        text-align: left;
+        border: none; /* remove borders from headers */
+    }
+    .rating-table td {
+        padding: 8px;
+        border: none; /* remove all borders from table cells */
+    }
+    .rating-table tr:nth-child(even) td {
+        background-color: #f8f9fa; /* optional light grey for alternating rows */
+    }
+</style>
+
+<table class="rating-table">
+    <thead>
+        <tr>
+            <th colspan="2">Rating scale for use throughout the form</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>A1</td>
+            <td>Outstanding performance. High levels of expertise</td>
+        </tr>
+        <tr>
+            <td>A2</td>
+            <td>Consistently exceeds requirements</td>
+        </tr>
+        <tr>
+            <td>B1</td>
+            <td>Meets requirements. Occasionally exceeds them</td>
+        </tr>
+        <tr>
+            <td>B2</td>
+            <td>Meets requirements.</td>
+        </tr>
+        <tr>
+            <td>C1</td>
+            <td>Partially meets requirements. Improvement required</td>
+        </tr>
+        <tr>
+            <td>C2</td>
+            <td>Unacceptable. Well below standard required</td>
+        </tr>
+    </tbody>
+</table>
+<table class="table table-bordered" style="width:100%; table-layout: fixed; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th style="width:50%;">Key Task</th>
+            <th style="width:25%;">Self Assessment - Rating</th>
+            <th style="width:25%;">Self Assessment - Comment</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php
+            $ratingMap = [6=>'A1',5=>'A2',4=>'B1',3=>'B2',2=>'C1',1=>'C2'];
+            $totalRating = 0;
+            $ratingCount = 0;
+        @endphp
+
+        @forelse($objectives as $objective)
+            @php
+                $initiatives = $objective->initiatives;
+                $initiativeList = $initiatives->pluck('initiative')->implode('<br>') ?: '-';
+            @endphp
+
             <tr>
-                <td>{{ $objective->objective }}</td>
-                <td>{{ $initiative->initiative }}</td>
-                <td>{{ $initiative->budget }}</td>
-                <td>{{ $initiative->archieved ? 'Yes' : 'No' }}</td>
-                <td>{{ $labels[$initiative->rating] ?? 'Not Rated' }}</td>
-                <td>{{ $initiative->comment }}</td>
+                {{-- Key Task with initiatives --}}
+                <td>
+                    <strong>{{ $objective->target->target_name ?? '-' }}</strong><br>
+                    <small>{!! $initiativeList !!}</small>
+                </td>
+
+                {{-- Self Rating --}}
+                <td>
+                    {{ $objective->target->self_rating ? $ratingMap[$objective->target->self_rating] : 'Not Rated' }}
+                </td>
+
+                {{-- Self Comment --}}
+                <td>{{ $objective->target->self_comment ?? '-' }}</td>
+
+                {{-- Accumulate rating for overall --}}
+                @php
+                    if($objective->target->self_rating) {
+                        $totalRating += $objective->target->self_rating;
+                        $ratingCount++;
+                    }
+                @endphp
             </tr>
         @empty
             <tr>
-                <td colspan="7">No initiatives added.</td>
+                <td colspan="3">&nbsp;No Objectives Available</td>
             </tr>
         @endforelse
-    </table>
-@endforeach
+
+        {{-- Overall Rating --}}
+        @php
+            $overall = $ratingCount > 0 ? $totalRating / $ratingCount : null;
+            $overallLabel = $overall ? $ratingMap[(int) round($overall)] : 'N/A';
+        @endphp
+        <tr style="font-weight:bold; background-color:#f1f1f1;">
+            <td>Overall Rating</td>
+            <td>{{ $overallLabel }}</td>
+            <td>&nbsp;</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
 
 {{-- Summary Table --}}
 @php
-    // Build per-target averages
-    $summary = $objectives->map(function($objective) use ($labels) {
+    $summary = $objectives->map(function($objective) use ($ratingLabels) {
         $empAvg = $objective->initiatives->avg('rating');
         $supAvg = $objective->initiatives->avg('supervisorrating');
 
         return [
             'target_name' => $objective->target->target_name ?? 'No Target',
-            'empAvg' => $empAvg ? ($labels[round($empAvg)] ?? 'Not Rated') : 'Not Rated',
-            'supAvg' => $supAvg ? ($labels[round($supAvg)] ?? 'Not Rated') : 'Not Rated',
+            'empAvg' => $empAvg ? ($ratingLabels[round($empAvg)] ?? 'Not Rated') : 'Not Rated',
+            'supAvg' => $supAvg ? ($ratingLabels[round($supAvg)] ?? 'Not Rated') : 'Not Rated',
         ];
     });
 
-    // Overall averages
     $overallEmp = $objectives->flatMap->initiatives->avg('rating');
     $overallSup = $objectives->flatMap->initiatives->avg('supervisorrating');
 
-    $overallEmpLabel = $overallEmp ? ($labels[round($overallEmp)] ?? 'Not Rated') : 'Not Rated';
-    $overallSupLabel = $overallSup ? ($labels[round($overallSup)] ?? 'Not Rated') : 'Not Rated';
+    $overallEmpLabel = $overallEmp ? ($ratingLabels[round($overallEmp)] ?? 'Not Rated') : 'Not Rated';
+    $overallSupLabel = $overallSup ? ($ratingLabels[round($overallSup)] ?? 'Not Rated') : 'Not Rated';
 @endphp
+
 
 <h5>Summary Ratings for Period End Performance Review <small>(Data brought forward from previous sections)</small></h5>
 <p>Note final ratings used for the performance notching on pay scales or bonuses will be those of the reviewer, and will be subject to the approval of the Human Resources Department.</p>

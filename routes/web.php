@@ -143,6 +143,13 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::match(['put', 'patch'], '/initiatives/{id}/update-inline', [InitiativeController::class, 'updateInline'])
     ->name('initiatives.updateInline');
+
+    // inline edit
+   // Inline update for targets
+Route::patch('/targets/{id}/update-inline', [TargetController::class, 'updateInlineTarget'])->name('targets.updateInline');
+
+
+
     Route::get('/user/performance/{period}/appraisal-report', [InitiativeController::class, 'showAppraisalReport'])->name('user.performance.appraisal.report');
 
 // Full resource routes (index, create, store, show, edit, update, destroy)
