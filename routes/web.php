@@ -18,6 +18,9 @@ use App\Http\Controllers\ManagerDashboardController;
 use App\Http\Controllers\UserPerformanceController;
 use App\Http\Controllers\PerformanceApraisalController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\EvaluationSectionController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\StrengthLearningController;
 
 
 
@@ -49,14 +52,7 @@ Route::get('/mypurpose', [ContractController::class, 'mypurpose'])->name('purpos
 
 
 
-//Task
-Route::resource('tasks', TaskController::class);
 
-
-Route::middleware(['auth'])->group(function () {
-    Route::resource('purposes/mypurpose', UserPurposeController::class);
-
-});
 Route::middleware(['auth'])->group(function () {
 
 
@@ -127,6 +123,57 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('purposes', PurposeController::class);
     Route::resource('initiatives', InitiativeController::class);
 
+    //evalutaions sections
+
+    Route::resource('evaluation_sections', EvaluationSectionController::class)
+         ->only(['index', 'create', 'store']);
+
+    //task
+
+    Route::resource('tasks', TaskController::class)
+    ->only(['index', 'create', 'store']);
+
+//ratings
+Route::resource('ratings', RatingController::class)
+->only(['index', 'create', 'store']);
+
+//update rating
+Route::post('ratings/update-self/{rating}', [RatingController::class, 'updateSelf'])->name('ratings.updateSelf');
+Route::post('ratings/save-all', [RatingController::class, 'saveAll'])->name('ratings.saveAll');
+
+
+
+Route::patch('ratings/{rating}/update-self', [PerformanceApraisalController::class, 'updateSelf'])->name('ratings.updateSelf');
+Route::post('ratings/save-all', [PerformanceApraisalController::class, 'saveAll'])->name('ratings.saveAll');
+
+
+//strength
+// Self perception
+Route::get('/my/strengths-learning', [StrengthLearningController::class, 'index'])->name('strengths.learning.index');
+Route::post('/my/strengths', [StrengthLearningController::class, 'storeStrength'])->name('strengths.store');
+Route::post('/my/learning-areas', [StrengthLearningController::class, 'storeLearning'])->name('strengths.learning.storeLearningArea');
+
+// Self inline edit & delete
+Route::patch('/strengths/{id}/update', [StrengthLearningController::class, 'updateStrength'])->name('strengths.update');
+Route::delete('/strengths/{id}/delete', [StrengthLearningController::class, 'destroyStrength'])->name('strengths.destroy');
+
+Route::patch('/learning/{id}/update', [StrengthLearningController::class, 'updateLearning'])->name('learning.update');
+Route::delete('/learning/{id}/delete', [StrengthLearningController::class, 'destroyLearning'])->name('learning.destroy');
+
+// Assessor perception
+Route::post('/assessor/strengths', [StrengthLearningController::class, 'storeAssessorStrength'])->name('strengths.assessor.store');
+Route::post('/assessor/learning-areas', [StrengthLearningController::class, 'storeAssessorLearning'])->name('strengths.learning.assessor.store');
+
+Route::patch('/assessor/strength/{id}', [StrengthLearningController::class, 'updateAssessorStrength'])->name('strengths.assessor.update');
+Route::patch('/assessor/learning/{id}', [StrengthLearningController::class, 'updateAssessorLearning'])->name('learning.assessor.update');
+
+
+// Assessor inline edit & delete
+Route::patch('/assessor/strengths/{id}/update', [StrengthLearningController::class, 'updateAssessorStrength'])->name('strengths.assessor.update');
+Route::delete('/assessor/strengths/{id}/delete', [StrengthLearningController::class, 'destroyAssessorStrength'])->name('strengths.assessor.destroy');
+
+Route::patch('/assessor/learning/{id}/update', [StrengthLearningController::class, 'updateAssessorLearning'])->name('learning.assessor.update');
+Route::delete('/assessor/learning/{id}/delete', [StrengthLearningController::class, 'destroyAssessorLearning'])->name('learning.assessor.destroy');
     //Manager updates
      // Manager Purpose Routes
     Route::get('manager/purposes/{purpose}/edit', [PurposeController::class, 'managerEdit'])->name('manager.purposes.edit');

@@ -11,6 +11,9 @@ use App\Models\Department;
 use App\Models\Section;
 use App\Models\Purpose;
 use App\Models\Authorisation;
+use App\Models\Rating;
+use App\Models\UserStrength;
+use App\Models\UserLearningArea;
 
 use Illuminate\Http\Request;
 
@@ -34,22 +37,68 @@ class PerformanceApraisalController extends Controller
         return view('user.performanceapraisal.index', compact('periods'));
     }
     
+
+    
     public function show(User $user, $periodId)
     {
         $user = auth()->user();
-
+        
         $period = Period::findOrFail($periodId);
-
-        $purposes = Purpose::where('user_id', $user->id)->where('period_id', $periodId)->get();
-        $objectives = Objective::where('user_id', $user->id)->where('period_id', $periodId)->get();
-        $initiatives = Initiative::where('user_id', $user->id)->where('period_id', $periodId)->get();
-
-        // Check if Authorisation exists
-        $authorisation = Authorisation::where('user_id', $user->id)->where('period_id', $periodId)->first();
-
-        return view('user.performanceapraisal.show', compact('user','period', 'purposes', 'objectives', 'initiatives', 'authorisation'));
+        
+        $purposes = Purpose::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->get();
+    
+        $objectives = Objective::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->get();
+    
+        $initiatives = Initiative::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->get();
+    
+        $authorisation = Authorisation::where('user_id', $user->id)
+            ->where('period_id', $periodId)
+            ->first();
+    
+        $sections = \App\Models\EvaluationSection::with([
+            'tasks.ratings' => function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            }
+        ])->get();
+    
+        // Strengths & Learning Areas
+        $selfStrengths = UserStrength::where('user_id', $user->id)->where('type', 'self')->get();
+        $selfLearning  = UserLearningArea::where('user_id', $user->id)->where('type', 'self')->get();
+        $assessorStrengths = UserStrength::where('user_id', $user->id)->where('type', 'assessor')->get();
+        $assessorLearning  = UserLearningArea::where('user_id', $user->id)->where('type', 'assessor')->get();
+    
+        $gradeFromNumber = function($num) {
+            if ($num >= 5.5) return 'A1';
+            if ($num >= 4.5) return 'A2';
+            if ($num >= 3.5) return 'B1';
+            if ($num >= 2.5) return 'B2';
+            if ($num >= 1.5) return 'C1';
+            if ($num >= 0.5) return 'C2';
+            return '-';
+        };
+    
+        return view('user.performanceapraisal.show', compact(
+            'user',
+            'period',
+            'purposes',
+            'objectives',
+            'initiatives',
+            'authorisation',
+            'sections',
+            'gradeFromNumber',
+            'selfStrengths',
+            'selfLearning',
+            'assessorStrengths',
+            'assessorLearning'
+        ));
     }
-
+    
     
 
     // Submit for Authorisation
@@ -86,5 +135,48 @@ class PerformanceApraisalController extends Controller
 
     return redirect()->back()->with('success', 'Submitted for approval successfully.');
 
+}
+
+public function updateSelf(Request $request, Rating $rating)
+{
+    // Ensure the logged-in user can only update their own rating
+    if ($rating->user_id !== auth()->id()) {
+        return redirect()->back()->with('error', 'Unauthorized');
+    }
+
+    $request->validate([
+        'self_rating' => 'nullable|integer|min:1|max:6',
+        'self_comment' => 'nullable|string|max:1000',
+    ]);
+
+    $rating->update([
+        'self_rating' => $request->self_rating,
+        'self_comment' => $request->self_comment,
+    ]);
+
+    return redirect()->back()->with('success', 'Rating updated successfully!');
+}
+
+/**
+ * Save all self ratings at once
+ */
+public function saveAll(Request $request)
+{
+    $ratingsData = $request->input('ratings', []);
+
+    foreach ($ratingsData as $taskId => $data) {
+        Rating::updateOrCreate(
+            [
+                'task_id' => $taskId,
+                'user_id' => auth()->id(),
+            ],
+            [
+                'self_rating' => $data['self_rating'] ?? null,
+                'self_comment' => $data['self_comment'] ?? null,
+            ]
+        );
+    }
+
+    return redirect()->back()->with('success', 'All ratings saved successfully!');
 }
 }

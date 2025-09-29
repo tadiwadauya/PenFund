@@ -39,4 +39,5 @@ public function period()
 {
     return $this->belongsTo(Period::class);
 }
+
 }

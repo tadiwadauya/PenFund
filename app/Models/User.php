@@ -96,4 +96,15 @@ public function subordinates()
 {
     return $this->hasMany(User::class, 'supervisor_id');
 }
+
+public function strengths()
+{
+    return $this->hasMany(UserStrength::class);
+}
+
+public function learningAreas()
+{
+    return $this->hasMany(UserLearningArea::class);
+}
+
 }

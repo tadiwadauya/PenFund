@@ -255,7 +255,226 @@
 
 
 
+
     <hr>
+    <a href="{{ route('evaluation_sections.create') }}" class="btn btn-success mb-3">Add Section</a>
+    <a href="{{ route('tasks.create') }}" class="btn btn-success mb-3">Add Task</a>
+    <hr>
+    <h2>My Ratings</h2>
+
+<form action="{{ route('ratings.saveAll') }}" method="POST">
+    @csrf
+
+    @foreach($sections as $section)
+        <h4 class="mt-4">Section: {{ $section->name }}</h4>
+        <table class="table table-bordered mb-4">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Self Rating</th>
+                    <th>Self Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($section->tasks as $task)
+                    @php 
+                        $rating = $task->ratings->first(); 
+                    @endphp
+                    <tr>
+                        <td>{{ $task->name }}</td>
+                        <td>
+                            <select name="ratings[{{ $task->id }}][self_rating]" class="form-control">
+                                <option value="">-- Select --</option>
+                                <option value="6" {{ ($rating && $rating->self_rating == 6) ? 'selected' : '' }}>A1</option>
+                                <option value="5" {{ ($rating && $rating->self_rating == 5) ? 'selected' : '' }}>A2</option>
+                                <option value="4" {{ ($rating && $rating->self_rating == 4) ? 'selected' : '' }}>B1</option>
+                                <option value="3" {{ ($rating && $rating->self_rating == 3) ? 'selected' : '' }}>B2</option>
+                                <option value="2" {{ ($rating && $rating->self_rating == 2) ? 'selected' : '' }}>C1</option>
+                                <option value="1" {{ ($rating && $rating->self_rating == 1) ? 'selected' : '' }}>C2</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" 
+                                   name="ratings[{{ $task->id }}][self_comment]" 
+                                   value="{{ $rating ? $rating->self_comment : '' }}" 
+                                   class="form-control">
+                        </td>
+                    </tr>
+                @endforeach
+
+                {{-- Overall Section Rating --}}
+                @php
+                    $overallSection = collect($section->tasks)->map(function($task){
+                        $rating = $task->ratings->first();
+                        if ($rating) {
+                            return collect([
+                                $rating->self_rating, 
+                                $rating->assessor_rating, 
+                                $rating->reviewer_rating
+                            ])->filter()->avg();
+                        }
+                        return null;
+                    })->filter()->avg();
+                @endphp
+                <tr style="background-color:#f2f2f2; font-weight:bold;">
+                    <td>Overall Rating for Section</td>
+                    <td>{{ $overallSection ? $gradeFromNumber($overallSection) : '-' }}</td>
+                    <td colspan="5"></td>
+                </tr>
+            </tbody>
+        </table>
+    @endforeach
+
+    <button type="submit" class="btn btn-primary">Save All Ratings</button>
+</form>
+
+<hr>
+<h2>Strengths & Learning Areas</h2>
+
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+{{-- ================= Self-Perception ================= --}}
+<h3>My Perception</h3>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="POST" action="{{ route('strengths.store') }}">
+            @csrf
+            <div class="input-group mb-2">
+                <textarea name="strength" class="form-control" placeholder="Add a strength"></textarea>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <form method="POST" action="{{ route('strengths.learning.storeLearningArea') }}">
+            @csrf
+            <div class="input-group mb-2">
+                <textarea name="learning_area" class="form-control" placeholder="Add a learning area"></textarea>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Strength</th>
+            <th>Learning Area</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php $max = max($selfStrengths->count(), $selfLearning->count()); @endphp
+        @for($i = 0; $i < $max; $i++)
+            @php
+                $strength = $selfStrengths[$i] ?? null;
+                $learning = $selfLearning[$i] ?? null;
+            @endphp
+            <tr>
+                {{-- Strength --}}
+                <td>
+                    @if($strength)
+                    <div class="d-flex mb-1">
+                        <form method="POST" action="{{ route('strengths.update', $strength->id) }}" class="flex-grow-1 me-1">
+                            @csrf
+                            @method('PATCH')
+                            <textarea name="strength" class="form-control">{{ $strength->strength }}</textarea>
+                            <button type="submit" class="btn btn-success mt-1">Save</button>
+                        </form>
+                        <form method="POST" action="{{ route('strengths.destroy', $strength->id) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger mt-1" onclick="return confirm('Delete this strength?')">Delete</button>
+                        </form>
+                    </div>
+                    @endif
+                </td>
+
+                {{-- Learning --}}
+                <td>
+                    @if($learning)
+                    <div class="d-flex mb-1">
+                        <form method="POST" action="{{ route('learning.update', $learning->id) }}" class="flex-grow-1 me-1">
+                            @csrf
+                            @method('PATCH')
+                            <textarea name="learning_area" class="form-control">{{ $learning->learning_area }}</textarea>
+                            <button type="submit" class="btn btn-success mt-1">Save</button>
+                        </form>
+                        <form method="POST" action="{{ route('learning.destroy', $learning->id) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger mt-1" onclick="return confirm('Delete this learning area?')">Delete</button>
+                        </form>
+                    </div>
+                    @endif
+                </td>
+            </tr>
+        @endfor
+    </tbody>
+</table>
+
+<hr>
+<!-- {{-- ================= Assessor Perception ================= --}}
+<h3>Assessor Perception</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Strength</th>
+            <th>Learning Area</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php $max = max($assessorStrengths->count(), $assessorLearning->count()); @endphp
+        @for($i = 0; $i < $max; $i++)
+            @php
+                $strength = $assessorStrengths[$i] ?? null;
+                $learning = $assessorLearning[$i] ?? null;
+            @endphp
+            <tr>
+                {{-- Strength --}}
+                <td>
+                    @if($strength)
+                    <div class="d-flex mb-1">
+                        <form method="POST" action="{{ route('strengths.assessor.update', $strength->id) }}" class="flex-grow-1 me-1">
+                            @csrf
+                            @method('PATCH')
+                            <textarea name="strength" class="form-control">{{ $strength->strength }}</textarea>
+                            <button type="submit" class="btn btn-success mt-1">Save</button>
+                        </form>
+                        <form method="POST" action="{{ route('strengths.assessor.destroy', $strength->id) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger mt-1" onclick="return confirm('Delete this strength?')">Delete</button>
+                        </form>
+                    </div>
+                    @endif
+                </td>
+
+                {{-- Learning --}}
+                <td>
+                    @if($learning)
+                    <div class="d-flex mb-1">
+                        <form method="POST" action="{{ route('learning.assessor.update', $learning->id) }}" class="flex-grow-1 me-1">
+                            @csrf
+                            @method('PATCH')
+                            <textarea name="learning_area" class="form-control">{{ $learning->learning_area }}</textarea>
+                            <button type="submit" class="btn btn-success mt-1">Save</button>
+                        </form>
+                        <form method="POST" action="{{ route('learning.assessor.destroy', $learning->id) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger mt-1" onclick="return confirm('Delete this learning area?')">Delete</button>
+                        </form>
+                    </div>
+                    @endif
+                </td>
+            </tr>
+        @endfor
+    </tbody>
+</table> -->
+
     <hr>
     <h3>Generate Report</h3>
     <form method="POST" action="{{ route('appraisalreport.apgenerate') }}">

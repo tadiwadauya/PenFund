@@ -13,12 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ratings', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('period_id')->constrained()->onDelete('cascade');
-            $table->float('overall_objective_rating')->nullable();
-            $table->float('overall_target_rating')->nullable();
+            $table->foreignId('section_id')->constrained('evaluation_sections')->onDelete('cascade');
+            $table->string('name'); // Task name
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ratings');
+        Schema::dropIfExists('tasks');
     }
 };

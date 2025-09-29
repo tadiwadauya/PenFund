@@ -8,28 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Task extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'period_id',
-        'user_id',
-        'key_task',
-        'task',
-        'target',
-        'objective',
-        'self_rating',
-        'self_comment',
-        'assessor_rating',
-        'assessor_comment',
-        'reviewer_rating',
-        'reviewer_comment',
-    ];
+    protected $fillable = ['name', 'section_id'];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
+    public function section() {
+        return $this->belongsTo(EvaluationSection::class, 'section_id');
     }
 
-    public function period()
-    {
-        return $this->belongsTo(Period::class);
+    public function ratings() {
+        return $this->hasMany(Rating::class);
     }
+  
+
+
+    
 }
