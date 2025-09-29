@@ -45,6 +45,8 @@
         width: 40%;
     }
 </style>
+<h4>PERFORMANCE ASSESSMENT FORM FOR NON-MANAGERIAL STAFF – LOCAL AUTHORITIES PENSION FUND </h4>
+<h3>SECTION 1: JOB INFORMATION </h3>
 
 <div style="width: 100%; background-color: #d6d6d6; padding: 0; margin: 0;">
     <table style="width: 100%; border-collapse: collapse;">
@@ -152,6 +154,8 @@
         </tr>
     </tbody>
 </table>
+
+<h3>SECTION 2 : SUMMARY OF PERFORMANCE ON TASKS</h3>
 <table class="table table-bordered" style="width:100%; table-layout: fixed; border-collapse: collapse;">
     <thead>
         <tr>
@@ -217,7 +221,83 @@
 
 
 
+@foreach($sections as $section)
+    <h4 class="mt-4">Section: {{ $section->name }}</h4>
+    <table class="table table-bordered mb-4" style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color:#d6d6d6;">
+                <th style="width:40%;">Task</th>
+                <th style="width:30%;">Self Assessment - Rating</th>
+                <th style="width:30%;">Self Assessment - Rating Comment</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($section->tasks as $task)
+                @php 
+                    $rating = $task->ratings->first(); 
+                    $selfRatingLabel = $rating ? $gradeFromNumber($rating->self_rating) : '-';
+                    $selfComment = $rating ? $rating->self_comment : '-';
+                @endphp
+                <tr>
+                    <td>{{ $task->name }}</td>
+                    <td>{{ $selfRatingLabel }}</td>
+                    <td>{{ $selfComment }}</td>
+                </tr>
+            @endforeach
 
+            {{-- Overall Section Rating --}}
+            @php
+                $overallSection = collect($section->tasks)->map(function($task){
+                    $rating = $task->ratings->first();
+                    if ($rating) {
+                        return collect([
+                            $rating->self_rating, 
+                            $rating->assessor_rating, 
+                            $rating->reviewer_rating
+                        ])->filter()->avg();
+                    }
+                    return null;
+                })->filter()->avg();
+
+                $overallSectionLabel = $overallSection ? $gradeFromNumber($overallSection) : '-';
+            @endphp
+            <tr style="background-color:#f2f2f2; font-weight:bold;">
+                <td>Overall Rating for Section {{ $section->name }}</td>
+                <td>{{ $overallSectionLabel }}</td>
+                <td>&nbsp;</td>
+            </tr>
+        </tbody>
+    </table>
+@endforeach
+
+
+
+<hr>
+<h3>Section 3</h3>
+<h3>General Summary</h3>
+<p><strong>A.</strong>This section summarises what are perceived to be the staff member’s major strengths and learning and development areas. </p>
+
+<table style="width:100%; border-collapse: collapse;" border="1">
+    <thead>
+        <tr style="background-color:#d6d6d6;">
+            <th style="padding:6px;">Strengths as Perceived by the Staff Member Being Assessed</th>
+            <th style="padding:6px;">Learning Areas as Perceived by the Staff Member Being Assessed</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php $max = max($selfStrengths->count(), $selfLearning->count()); @endphp
+        @for($i = 0; $i < $max; $i++)
+            @php
+                $strength = $selfStrengths[$i] ?? null;
+                $learning = $selfLearning[$i] ?? null;
+            @endphp
+            <tr>
+                <td style="padding:6px;">{{ $strength->strength ?? '-' }}</td>
+                <td style="padding:6px;">{{ $learning->learning_area ?? '-' }}</td>
+            </tr>
+        @endfor
+    </tbody>
+</table>
 
 {{-- Summary Table --}}
 @php
@@ -239,28 +319,31 @@
     $overallSupLabel = $overallSup ? ($ratingLabels[round($overallSup)] ?? 'Not Rated') : 'Not Rated';
 @endphp
 
-
+<h3>SECTION 4</h3>
 <h5>Summary Ratings for Period End Performance Review <small>(Data brought forward from previous sections)</small></h5>
 <p>Note final ratings used for the performance notching on pay scales or bonuses will be those of the reviewer, and will be subject to the approval of the Human Resources Department.</p>
-<table>
-    <tr>
-        <th>Balanced Scorecard Perspective</th>
-        <th>Overall Ratings of Staff member being Assessed</th>
-        <th>Overall Ratings of Assessor</th>
-    </tr>
-    @foreach($summary as $row)
+
+<table style="width:100%; border-collapse: collapse;" border="1">
+    <thead style="background-color:#d6d6d6;">
         <tr>
-            <td>{{ $row['target_name'] }}</td>
-            <td>{{ $row['empAvg'] }}</td>
-            <td>{{ $row['supAvg'] }}</td>
+            <th>Balanced Scorecard Perspective</th>
+            <th>Overall Ratings of Staff member being Assessed</th>
         </tr>
-    @endforeach
-    <tr>
-        <th>Total Performance Notches</th>
-        <th>{{ $overallEmpLabel }}</th>
-        <th>{{ $overallSupLabel }}</th>
-    </tr>
+    </thead>
+    <tbody>
+        @foreach($sectionRatings as $section)
+        <tr>
+            <td style="padding:6px;">{{ $section['name'] }}</td>
+            <td style="padding:6px;">{{ $section['label'] }}</td>
+        </tr>
+        @endforeach
+        <tr style="font-weight:bold; background-color:#f1f1f1;">
+            <td>Total Performance Notches</td>
+            <td>{{ $totalPerformanceNotchesLabel }}</td>
+        </tr>
+    </tbody>
 </table>
+
 
 
 <h4>Signatures</h4>

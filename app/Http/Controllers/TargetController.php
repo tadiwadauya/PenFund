@@ -117,8 +117,23 @@ class TargetController extends Controller
     }
     
 
-    
-    
+    public function assessorUpdateInline(Request $request, $id)
+{
+    $request->validate([
+        'assessor_comment' => 'nullable|string|max:1000',
+        'assessor_rating'  => 'nullable|integer|min:1|max:6',
+    ]);
+
+    $target = Target::findOrFail($id);
+    $target->update([
+        'assessor_comment' => $request->assessor_comment,
+        'assessor_rating'  => $request->assessor_rating,
+    ]);
+
+    return redirect()->back()->with('success', 'Target updated successfully.');
+}
+
+
 
 
     /**

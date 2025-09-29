@@ -88,20 +88,35 @@ public function saveAll(Request $request)
     $ratingsData = $request->input('ratings', []);
 
     foreach ($ratingsData as $taskId => $data) {
-        \App\Models\Rating::updateOrCreate(
+        // Ensure rating exists
+        $rating = \App\Models\Rating::updateOrCreate(
             [
                 'task_id' => $taskId,
-                'user_id' => auth()->id()
+                'user_id' => auth()->id(),
             ],
-            [
-                'self_rating' => $data['self_rating'] ?? null,
-                'self_comment' => $data['self_comment'] ?? null
-            ]
+            [] // don't overwrite anything yet
         );
+
+        // Conditionally update fields only if present in request
+        if (array_key_exists('self_rating', $data)) {
+            $rating->self_rating = $data['self_rating'];
+        }
+        if (array_key_exists('self_comment', $data)) {
+            $rating->self_comment = $data['self_comment'];
+        }
+        if (array_key_exists('assessor_rating', $data)) {
+            $rating->assessor_rating = $data['assessor_rating'];
+        }
+        if (array_key_exists('assessor_comment', $data)) {
+            $rating->assessor_comment = $data['assessor_comment'];
+        }
+
+        $rating->save();
     }
 
     return redirect()->back()->with('success', 'Ratings saved successfully!');
 }
+
 
 
 }

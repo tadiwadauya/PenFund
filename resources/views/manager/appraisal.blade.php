@@ -9,277 +9,296 @@
 <section class="content">
 <div class="container-fluid">
 
-    <h1>Performance Appraisal for {{ $user->first_name }} {{ $user->last_name }}</h1>
-    @if (session('success'))
+    <h1>Performance Assessment for {{ $user->first_name }} {{ $user->last_name }} - Period {{ $period->year }}</h1>
+
+    @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-    @if (session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-@endif
-    {{-- ================== PURPOSES ================== --}}
-    <h3>Purposes</h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Purpose</th>
-                <th>Period</th>
-                <th>Created At</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($purposes as $purpose)
-                <tr>
-                    <td>{!! $purpose->purpose !!}</td>
-                    <td>{{ $purpose->period->year ?? 'N/A' }}</td>
-                    <td>{{ $purpose->created_at->format('Y-m-d') }}</td>
-                </tr>
-            @empty
-                <tr><td colspan="3">No purposes found.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    {{-- ================== INITIATIVES WITH INLINE EDIT ================== --}}
-    <h3>Performance Appraisal</h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Period</th>
-                <th>Target</th>
-                <th>Objective</th>
-                <th>Initiative</th>
-                <th>Budget</th>
-                <th>Rating</th>
-                <th>Actual/Achieved </th>
-                <th>Overall Ratings of Assessor </th>
-                <th>Comment</th>
-                <th>Update</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($initiatives as $initiative)
-                <tr>
-                    <td>{{ $initiative->period->year ?? 'N/A' }}</td>
-                    <td>{{ $initiative->target->target_name ?? '-' }}</td>
-                    <td>{{ $initiative->objective->objective ?? '-' }}</td>
-                    <td>{{ $initiative->initiative }}</td>
-                    <td>{{ $initiative->budget }}</td>
-                    <td>
-    @php
-        $ratingLabel = match($initiative->rating) {
-            6 => 'A1 - Outstanding performance. High levels of expertise',
-            5 => 'A2 - Consistently exceeds requirements',
-            4 => 'B1 - Meets requirements. Occasionally exceeds them',
-            3 => 'B2 - Meets requirements',
-            2 => 'C1 - Partially meets requirements. Improvement required',
-            1 => 'C2 - Unacceptable. Well below standard required',
-            default => '-',
-        };
-    @endphp
-    
-
-    {{ $ratingLabel }}
-</td>
-
-                    
-                    {{-- Inline edit form --}}
-                    <form action="{{ route('initiatives.updateInline', $initiative->id) }}" method="POST" class="d-flex align-items-center">
-                        @csrf
-                        @method('PATCH')
-                        <td>
-                            <select name="archieved" class="form-control me-2" style="width: 120px;">
-                                <option value="0" {{ $initiative->archieved == 0 ? 'selected' : '' }}>Not Achieved</option>
-                                <option value="1" {{ $initiative->archieved == 1 ? 'selected' : '' }}>Achieved</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select name="supervisorrating" class="form-control me-2" style="width: 180px;">
-                                <option value="">-- Select Rating --</option>
-                                <option value="6" {{ $initiative->supervisorrating == 6 ? 'selected' : '' }}>A1</option>
-                                <option value="5" {{ $initiative->supervisorrating == 5 ? 'selected' : '' }}>A2</option>
-                                <option value="4" {{ $initiative->supervisorrating == 4 ? 'selected' : '' }}>B1</option>
-                                <option value="3" {{ $initiative->supervisorrating == 3 ? 'selected' : '' }}>B2</option>
-                                <option value="2" {{ $initiative->supervisorrating == 2 ? 'selected' : '' }}>C1</option>
-                                <option value="1" {{ $initiative->supervisorrating == 1 ? 'selected' : '' }}>C2</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" name="comment" value="{{ $initiative->comment }}" class="form-control me-2" style="width: 200px;">
-                        </td>
-                        <td>
-                            <button type="submit" class="btn btn-sm btn-success">Save</button>
-                        </td>
-                    </form>
-                </tr>
-            @empty
-                <tr><td colspan="8">No initiatives found.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    {{-- ================== AVERAGE RATINGS ================== --}}
-    @php
-        $averages = $initiatives
-            ->groupBy('target_id')
-            ->map(function($group) {
-                return [
-                    'target_name' => $group->first()->target->target_name ?? 'N/A',
-                    'average' => $group->avg('rating'),
-                ];
-            });
-
-        $overallAverage = $initiatives->avg('rating');
-
-        if (!function_exists('mapRating')) {
-            function mapRating($value) {
-                return match(true) {
-                    $value >= 5.5 => 'A1',
-                    $value >= 4.5 => 'A2',
-                    $value >= 3.5 => 'B1',
-                    $value >= 2.5 => 'B2',
-                    $value >= 1.5 => 'C1',
-                    $value > 0    => 'C2',
-                    default       => 'No Rating',
-                };
-            }
-        }
-    @endphp
-
-    @if($averages->count())
-        <h4 class="mt-4">Overall Ratings of Staff member being Assessed</h4>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Target</th>
-                    <th>Performance Level</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($averages as $avg)
-                    <tr>
-                        <td>{{ $avg['target_name'] }}</td>
-                        <td>{{ mapRating($avg['average']) }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    @if($overallAverage)
-        <h4 class="mt-4">Total Performance Notches Of Staff member being Assessed</h4>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Total Performance Notches</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ mapRating($overallAverage) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    @endif
-
-    {{-- ================== AVERAGE Assessor RATINGS ================== --}}
-@php
-    $supervisorAverages = $initiatives
-        ->groupBy('target_id')
-        ->map(function($group) {
-            return [
-                'target_name' => $group->first()->target->target_name ?? 'N/A',
-                'average' => $group->avg('supervisorrating'),
-            ];
-        });
-
-    $overallSupervisorAverage = $initiatives->avg('supervisorrating');
-
-    if (!function_exists('mapRating')) {
-        function mapRating($value) {
-            return match(true) {
-                $value >= 5.5 => 'A1',
-                $value >= 4.5 => 'A2',
-                $value >= 3.5 => 'B1',
-                $value >= 2.5 => 'B2',
-                $value >= 1.5 => 'C1',
-                $value > 0    => 'C2',
-                default       => 'No Rating',
-            };
-        }
-    }
-@endphp
-
-@if($supervisorAverages->count())
-    <h4 class="mt-4">Overall Assessor Ratings </h4>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Target</th>
-                <th>Supervisor Performance Level</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($supervisorAverages as $avg)
-                <tr>
-                    <td>{{ $avg['target_name'] }}</td>
-                    <td>{{ mapRating($avg['average']) }}</td>
-                </tr>
-            @endforeach
-        </tbody>
+    {{-- STAFF DETAILS --}}
+    <table class="table table-bordered mb-4">
+        <tr class="table-secondary">
+            <td width="50%">
+                <table class="table table-sm mb-0">
+                    <tr><th>Name of Staff:</th><td>{{ $user->first_name }} {{ $user->last_name }}</td></tr>
+                    <tr><th>Department:</th><td>{{ $user->department }}</td></tr>
+                    <tr><th>Section:</th><td>{{ $user->section }}</td></tr>
+                    <tr><th>Job Title:</th><td>{{ $user->jobtitle }}</td></tr>
+                    <tr><th>Grade:</th><td>{{ $user->grade }}</td></tr>
+                </table>
+            </td>
+            <td width="50%">
+                <table class="table table-sm mb-0">
+                    <tr><th>Assessor:</th><td>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</td></tr>
+                    <tr><th>Reviewer:</th><td>{{ $user->reviewer ? $user->reviewer->first_name . ' ' . $user->reviewer->last_name : 'N/A' }}</td></tr>
+                    <tr><th>Review Period:</th><td>01 Jan {{ $period->year }} – Dec {{ $period->year }}</td></tr>
+                </table>
+            </td>
+        </tr>
     </table>
-@endif
 
-@if($overallSupervisorAverage)
-    <h4 class="mt-4">Assessor Total Performance Notches</h4>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Total Performance Notches</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ mapRating($overallSupervisorAverage) }}</td>
-            </tr>
-        </tbody>
-    </table>
-@endif
-
-    {{-- ================== AUTHORISATION ================== --}}
-    <hr>
-    <h3>Authorisations by Period</h3>
-
-    @php
-        $periods = $initiatives->pluck('period')->unique('id')->filter();
-    @endphp
-
-    @foreach($periods as $p)
-        @php
-            $auth = $authorisations->where('period_id', $p->id)->first();
+    {{-- KEY TASKS --}}
+    <h3>Key Tasks & Ratings</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Key Task</th>
+            <th>Task</th>
+            <th>Self Rating</th>
+            <th>Self Comment</th>
+            <th>Assessor Rating</th>
+            <th>Assessor Comment</th>
+            <th>Update</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php 
+            $grouped = $initiatives->groupBy('target_id'); 
+            $totalSelf = 0; $countSelf = 0;
+            $totalAssessor = 0; $countAssessor = 0;
         @endphp
 
-        <div class="mb-3 p-2 border rounded">
-            <strong>Period: {{ $p->year }}</strong><br>
+        @forelse($grouped as $targetId => $tasks)
+            <form action="{{ route('targets.assessorUpdateInline', $targetId) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                @foreach($tasks as $i => $task)
+                    <tr>
+                        @if($i === 0)
+                            {{-- Key Task --}}
+                            <td rowspan="{{ $tasks->count() }}">{{ $task->target->target_name ?? '-' }}</td>
+                        @endif
 
-            @if(!$auth)
-                <form method="POST" action="{{ route('user.performanceapraisal.submit', ['user' => $user->id, 'period' => $p->id]) }}">
-                    @csrf
-                    <button type="submit" class="btn btn-primary btn-sm">Submit for authorisation</button>
-                </form>
-            @elseif($auth->status === 'Rejected')
-                <form method="POST" action="{{ route('user.performanceapraisal.submit', ['user' => $user->id, 'period' => $p->id]) }}">
-                    @csrf
-                    <button type="submit" class="btn btn-warning btn-sm">Resubmit for authorisation</button>
-                </form>
-            @else
-                <span class="badge badge-success">{{ $auth->status }}</span>
-            @endif
-        </div>
+                        {{-- Task --}}
+                        <td>{{ $task->initiative }}</td>
+
+                        {{-- Self-assessment read-only --}}
+                        @if($i === 0)
+                            <td rowspan="{{ $tasks->count() }}">
+                                @switch($task->target->self_rating)
+                                    @case(6) A1 @break
+                                    @case(5) A2 @break
+                                    @case(4) B1 @break
+                                    @case(3) B2 @break
+                                    @case(2) C1 @break
+                                    @case(1) C2 @break
+                                    @default - 
+                                @endswitch
+                            </td>
+                            <td rowspan="{{ $tasks->count() }}">
+                                {{ $task->target->self_comment ?? '-' }}
+                            </td>
+
+                            {{-- Assessor editable --}}
+                            <td rowspan="{{ $tasks->count() }}">
+                                <select name="assessor_rating" class="form-control">
+                                    <option value="">-- Select Rating --</option>
+                                    @for($r=6; $r>=1; $r--)
+                                        <option value="{{ $r }}" {{ $task->target->assessor_rating == $r ? 'selected' : '' }}>
+                                            @switch($r)
+                                                @case(6) A1 @break
+                                                @case(5) A2 @break
+                                                @case(4) B1 @break
+                                                @case(3) B2 @break
+                                                @case(2) C1 @break
+                                                @case(1) C2 @break
+                                            @endswitch
+                                        </option>
+                                    @endfor
+                                </select>
+                            </td>
+                            <td rowspan="{{ $tasks->count() }}">
+                                <input type="text" name="assessor_comment" value="{{ $task->target->assessor_comment }}" class="form-control">
+                            </td>
+
+                            {{-- Save button --}}
+                            <td rowspan="{{ $tasks->count() }}">
+                                <button type="submit" class="btn btn-sm btn-success">Save</button>
+                            </td>
+                        @endif
+
+                        {{-- Accumulate ratings for overall --}}
+                        @php
+                            if($task->target->self_rating) { $totalSelf += $task->target->self_rating; $countSelf++; }
+                            if($task->target->assessor_rating) { $totalAssessor += $task->target->assessor_rating; $countAssessor++; }
+                        @endphp
+                    </tr>
+                @endforeach
+            </form>
+        @empty
+            <tr><td colspan="7">No tasks found.</td></tr>
+        @endforelse
+
+        {{-- Overall Ratings for all Key Tasks --}}
+        @php
+            $overallSelf = $countSelf ? $totalSelf / $countSelf : null;
+            $overallAssessor = $countAssessor ? $totalAssessor / $countAssessor : null;
+
+            $grade = function($num) {
+                if($num === null) return '-';
+                if($num >= 5.5) return 'A1';
+                if($num >= 4.5) return 'A2';
+                if($num >= 3.5) return 'B1';
+                if($num >= 2.5) return 'B2';
+                if($num >= 1.5) return 'C1';
+                if($num >= 0.5) return 'C2';
+                return '-';
+            };
+        @endphp
+        <tr style="font-weight: bold; background-color: #f1f1f1;">
+            <td colspan="2">Overall Rating (All Key Tasks)</td>
+            <td>{{ $grade($overallSelf) }}</td>
+            <td></td>
+            <td>{{ $grade($overallAssessor) }}</td>
+            <td colspan="2"></td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+    {{-- MY RATINGS --}}
+    <form action="{{ route('manager.ratings.saveAssessor') }}" method="POST">
+    @csrf
+    <input type="hidden" name="user_id" value="{{ $user->id }}">
+
+    @foreach($sectionRatingsForMyRatings as $s)
+        <h4 class="mt-4">Section: {{ $s['section']->name }}</h4>
+        <table class="table table-bordered mb-4">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Self Rating</th>
+                    <th>Self Comment</th>
+                    <th>Assessor Rating</th>
+                    <th>Assessor Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $assessorTotal = 0;
+                    $assessorCount = 0;
+                @endphp
+
+                @foreach($s['section']->tasks as $task)
+                    @php $rating = $task->ratings->first(); @endphp
+                    @if($rating?->assessor_rating)
+                        @php
+                            $assessorTotal += $rating->assessor_rating;
+                            $assessorCount++;
+                        @endphp
+                    @endif
+                    <tr>
+                        <td>{{ $task->name }}</td>
+                        <td>
+                            @switch($rating?->self_rating)
+                                @case(6) A1 @break
+                                @case(5) A2 @break
+                                @case(4) B1 @break
+                                @case(3) B2 @break
+                                @case(2) C1 @break
+                                @case(1) C2 @break
+                                @default - 
+                            @endswitch
+                        </td>
+                        <td>{{ $rating?->self_comment ?? '-' }}</td>
+
+                        <td>
+                            <select name="ratings[{{ $task->id }}][assessor_rating]" class="form-control">
+                                <option value="">-- Select --</option>
+                                <option value="6" {{ ($rating?->assessor_rating == 6) ? 'selected' : '' }}>A1</option>
+                                <option value="5" {{ ($rating?->assessor_rating == 5) ? 'selected' : '' }}>A2</option>
+                                <option value="4" {{ ($rating?->assessor_rating == 4) ? 'selected' : '' }}>B1</option>
+                                <option value="3" {{ ($rating?->assessor_rating == 3) ? 'selected' : '' }}>B2</option>
+                                <option value="2" {{ ($rating?->assessor_rating == 2) ? 'selected' : '' }}>C1</option>
+                                <option value="1" {{ ($rating?->assessor_rating == 1) ? 'selected' : '' }}>C2</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="text" name="ratings[{{ $task->id }}][assessor_comment]"
+                                   value="{{ $rating?->assessor_comment }}" class="form-control">
+                        </td>
+                    </tr>
+                @endforeach
+
+                {{-- Overall Ratings for Section --}}
+                @php
+                    $assessorAvg = $assessorCount ? $assessorTotal / $assessorCount : null;
+
+                    // Convert numeric average to grade label
+                    $label = function($num) {
+                        if($num === null) return '-';
+                        if($num >= 5.5) return 'A1';
+                        if($num >= 4.5) return 'A2';
+                        if($num >= 3.5) return 'B1';
+                        if($num >= 2.5) return 'B2';
+                        if($num >= 1.5) return 'C1';
+                        if($num >= 0.5) return 'C2';
+                        return '-';
+                    };
+                @endphp
+
+                <tr style="background-color:#f2f2f2; font-weight:bold;">
+                    <td>Overall Rating for Section</td>
+                    <td>{{ $s['label'] }}</td>
+                    <td></td>
+                    <td colspan="2">{{ $label($assessorAvg) }}</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
     @endforeach
 
-    {{-- ================== REPORT GENERATION ================== --}}
+    <button type="submit" class="btn btn-primary">Save All Assessor Ratings</button>
+</form>
+
+{{-- SUMMARY --}}
+<h3>SECTION 4</h3>
+<h5>Summary Ratings for Period End Performance Review <small>(Data brought forward from previous sections)</small></h5>
+<table border="1" width="100%" style="border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th>Balanced Scorecard Perspective</th>
+            <th>Overall Ratings of Staff member being Assessed (Self)</th>
+            <th>Overall Ratings of Assessor</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($sectionRatings as $section)
+            <tr>
+                <td>{{ $section['name'] }}</td>
+                <td>{{ $section['label'] }}</td>
+                <td>
+                    @switch($section['assessor_average'])
+                        @case(6) A1 @break
+                        @case(5) A2 @break
+                        @case(4) B1 @break
+                        @case(3) B2 @break
+                        @case(2) C1 @break
+                        @case(1) C2 @break
+                        @default {{ $section['assessor_label'] ?? '-' }}
+                    @endswitch
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="3">No sections / ratings found.</td>
+            </tr>
+        @endforelse
+        <tr style="font-weight: bold;">
+            <td>Total Performance Notches</td>
+            <td>{{ $totalSelfLabel }}</td>
+            <td>{{ $totalAssessorLabel }}</td>
+        </tr>
+    </tbody>
+</table>
+
+
+{{-- ================== REPORT GENERATION ================== --}}
     <hr>
     <h3>Generate Report</h3>
     <form method="POST" action="{{ route('appraisalreport.apgenerate') }}">

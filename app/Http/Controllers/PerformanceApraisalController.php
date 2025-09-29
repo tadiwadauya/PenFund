@@ -38,67 +38,90 @@ class PerformanceApraisalController extends Controller
     }
     
 
-    
     public function show(User $user, $periodId)
-    {
-        $user = auth()->user();
-        
-        $period = Period::findOrFail($periodId);
-        
-        $purposes = Purpose::where('user_id', $user->id)
-            ->where('period_id', $periodId)
-            ->get();
+{
+    $user = auth()->user();
     
-        $objectives = Objective::where('user_id', $user->id)
-            ->where('period_id', $periodId)
-            ->get();
+    $period = Period::findOrFail($periodId);
     
-        $initiatives = Initiative::where('user_id', $user->id)
-            ->where('period_id', $periodId)
-            ->get();
-    
-        $authorisation = Authorisation::where('user_id', $user->id)
-            ->where('period_id', $periodId)
-            ->first();
-    
-        $sections = \App\Models\EvaluationSection::with([
-            'tasks.ratings' => function($q) use ($user) {
-                $q->where('user_id', $user->id);
-            }
-        ])->get();
-    
-        // Strengths & Learning Areas
-        $selfStrengths = UserStrength::where('user_id', $user->id)->where('type', 'self')->get();
-        $selfLearning  = UserLearningArea::where('user_id', $user->id)->where('type', 'self')->get();
-        $assessorStrengths = UserStrength::where('user_id', $user->id)->where('type', 'assessor')->get();
-        $assessorLearning  = UserLearningArea::where('user_id', $user->id)->where('type', 'assessor')->get();
-    
-        $gradeFromNumber = function($num) {
-            if ($num >= 5.5) return 'A1';
-            if ($num >= 4.5) return 'A2';
-            if ($num >= 3.5) return 'B1';
-            if ($num >= 2.5) return 'B2';
-            if ($num >= 1.5) return 'C1';
-            if ($num >= 0.5) return 'C2';
-            return '-';
-        };
-    
-        return view('user.performanceapraisal.show', compact(
-            'user',
-            'period',
-            'purposes',
-            'objectives',
-            'initiatives',
-            'authorisation',
-            'sections',
-            'gradeFromNumber',
-            'selfStrengths',
-            'selfLearning',
-            'assessorStrengths',
-            'assessorLearning'
-        ));
+    $purposes = Purpose::where('user_id', $user->id)
+        ->where('period_id', $periodId)
+        ->get();
+
+    $objectives = Objective::where('user_id', $user->id)
+        ->where('period_id', $periodId)
+        ->get();
+
+    $initiatives = Initiative::where('user_id', $user->id)
+        ->where('period_id', $periodId)
+        ->get();
+
+    $authorisation = Authorisation::where('user_id', $user->id)
+        ->where('period_id', $periodId)
+        ->first();
+
+    $sections = \App\Models\EvaluationSection::with([
+        'tasks.ratings' => function($q) use ($user) {
+            $q->where('user_id', $user->id);
+        }
+    ])->get();
+
+    // Strengths & Learning Areas
+    $selfStrengths = UserStrength::where('user_id', $user->id)->where('type', 'self')->get();
+    $selfLearning  = UserLearningArea::where('user_id', $user->id)->where('type', 'self')->get();
+    $assessorStrengths = UserStrength::where('user_id', $user->id)->where('type', 'assessor')->get();
+    $assessorLearning  = UserLearningArea::where('user_id', $user->id)->where('type', 'assessor')->get();
+
+    // Function to convert numeric rating to grade
+    $gradeFromNumber = function($num) {
+        if ($num >= 5.5) return 'A1';
+        if ($num >= 4.5) return 'A2';
+        if ($num >= 3.5) return 'B1';
+        if ($num >= 2.5) return 'B2';
+        if ($num >= 1.5) return 'C1';
+        if ($num >= 0.5) return 'C2';
+        return '-';
+    };
+
+    // Calculate section-level ratings for Balanced Scorecard table
+    $sectionRatings = [];
+    $sectionTotals = [];
+    foreach ($sections as $section) {
+        $overallSection = collect($section->tasks)->map(function($task){
+            $rating = $task->ratings->first();
+            return $rating ? $rating->self_rating : null;
+        })->filter()->avg();
+
+        $sectionRatings[] = [
+            'name' => $section->name,
+            'average' => $overallSection,
+            'label' => $overallSection ? $gradeFromNumber($overallSection) : '-'
+        ];
+
+        if ($overallSection) $sectionTotals[] = $overallSection;
     }
-    
+
+    $totalPerformanceNotches = count($sectionTotals) ? array_sum($sectionTotals)/count($sectionTotals) : null;
+    $totalPerformanceNotchesLabel = $totalPerformanceNotches ? $gradeFromNumber($totalPerformanceNotches) : '-';
+
+    return view('user.performanceapraisal.show', compact(
+        'user',
+        'period',
+        'purposes',
+        'objectives',
+        'initiatives',
+        'authorisation',
+        'sections',
+        'gradeFromNumber',
+        'selfStrengths',
+        'selfLearning',
+        'assessorStrengths',
+        'assessorLearning',
+        'sectionRatings',
+        'totalPerformanceNotchesLabel'
+    ));
+}
+
     
 
     // Submit for Authorisation
@@ -165,18 +188,31 @@ public function saveAll(Request $request)
     $ratingsData = $request->input('ratings', []);
 
     foreach ($ratingsData as $taskId => $data) {
-        Rating::updateOrCreate(
+        // Ensure rating exists
+        $rating = \App\Models\Rating::updateOrCreate(
             [
                 'task_id' => $taskId,
                 'user_id' => auth()->id(),
             ],
-            [
-                'self_rating' => $data['self_rating'] ?? null,
-                'self_comment' => $data['self_comment'] ?? null,
-            ]
+            [] // don't overwrite anything yet
         );
-    }
 
+        // Conditionally update fields only if present in request
+        if (array_key_exists('self_rating', $data)) {
+            $rating->self_rating = $data['self_rating'];
+        }
+        if (array_key_exists('self_comment', $data)) {
+            $rating->self_comment = $data['self_comment'];
+        }
+        if (array_key_exists('assessor_rating', $data)) {
+            $rating->assessor_rating = $data['assessor_rating'];
+        }
+        if (array_key_exists('assessor_comment', $data)) {
+            $rating->assessor_comment = $data['assessor_comment'];
+        }
+
+        $rating->save();
+    }
     return redirect()->back()->with('success', 'All ratings saved successfully!');
 }
 }

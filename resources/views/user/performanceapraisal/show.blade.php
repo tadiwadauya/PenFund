@@ -357,7 +357,7 @@
         </form>
     </div>
 </div>
-
+<h3>SECTION 3</h3>
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -474,6 +474,31 @@
         @endfor
     </tbody>
 </table> -->
+<h3>SECTION 4</h3>
+<h5>Summary Ratings for Period End Performance Review <small>(Data brought forward from previous sections)</small></h5>
+<p>Note final ratings used for the performance notching on pay scales or bonuses will be those of the reviewer, and will be subject to the approval of the Human Resources Department.</p>
+
+<table border="1" width="100%" style="border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th>Balanced Scorecard Perspective</th>
+            <th>Overall Ratings of Staff member being Assessed</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($sectionRatings as $section)
+        <tr>
+            <td>{{ $section['name'] }}</td>
+            <td>{{ $section['label'] }}</td>
+        </tr>
+        @endforeach
+        <tr style="font-weight: bold;">
+            <td>Total Performance Notches</td>
+            <td>{{ $totalPerformanceNotchesLabel }}</td>
+        </tr>
+    </tbody>
+</table>
+
 
     <hr>
     <h3>Generate Report</h3>

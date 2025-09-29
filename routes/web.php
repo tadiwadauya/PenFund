@@ -60,7 +60,9 @@ Route::middleware(['auth'])->group(function () {
      Route::get('/manager/users/{user}/{periodId}', [ManagerDashboardController::class, 'show'])
     ->name('manager.user.show');
     //view users to be approver appraisal with inline edit 
-    Route::get('/manager/appraisals/{user}', [ManagerDashboardController::class, 'apshow'])->name('manager.appraisal.show');
+
+    Route::get('/manager/appraisal/{user}/{period}', [ManagerDashboardController::class, 'apshow'])
+    ->name('manager.appraisal.show');
 
 
     // Approved Users
@@ -146,6 +148,12 @@ Route::post('ratings/save-all', [RatingController::class, 'saveAll'])->name('rat
 Route::patch('ratings/{rating}/update-self', [PerformanceApraisalController::class, 'updateSelf'])->name('ratings.updateSelf');
 Route::post('ratings/save-all', [PerformanceApraisalController::class, 'saveAll'])->name('ratings.saveAll');
 
+// routes/web.php
+
+// For manager dashboard only - saving assessor ratings
+Route::post('manager/ratings/save-assessor', [ManagerDashboardController::class, 'saveAssessorRatings'])
+    ->name('manager.ratings.saveAssessor');
+
 
 //strength
 // Self perception
@@ -182,6 +190,10 @@ Route::delete('/assessor/learning/{id}/delete', [StrengthLearningController::cla
     // Manager Objective Routes
     Route::get('manager/objectives/{objective}/edit', [ObjectiveController::class, 'managerEdit'])->name('manager.objectives.edit');
     Route::patch('manager/objectives/{objective}', [ObjectiveController::class, 'managerUpdate'])->name('manager.objectives.update');
+
+
+    Route::patch('/targets/{id}/assessor-update-inline', [TargetController::class, 'assessorUpdateInline'])
+    ->name('targets.assessorUpdateInline');
     
      // Manager Actions to support objectives Routes
         // Manager Initiative Routes
@@ -190,6 +202,8 @@ Route::delete('/assessor/learning/{id}/delete', [StrengthLearningController::cla
 
     Route::match(['put', 'patch'], '/initiatives/{id}/update-inline', [InitiativeController::class, 'updateInline'])
     ->name('initiatives.updateInline');
+
+    
 
     // inline edit
    // Inline update for targets
