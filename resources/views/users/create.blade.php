@@ -102,6 +102,7 @@
         </div>
        
     </div>
+
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">
             <strong>mobile:</strong>
@@ -122,12 +123,14 @@
             {!! Form::text('address', null, array('placeholder' => 'address','class' => 'form-control')) !!}
         </div>
         </div>
+
         <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">
             <strong>Grade:</strong>
             {!! Form::number('grade', null, array('placeholder' => 'grade','class' => 'form-control')) !!}
         </div>
         </div>
+
         <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">
     <strong>Supervisor:</strong>
@@ -138,7 +141,7 @@
         @endforeach
     </select>
 </div>
-
+</div>
 <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group">
     <strong>Reviewer:</strong>
@@ -149,8 +152,8 @@
         @endforeach
     </select>
 </div>
-
     </div>
+
     <div class="col-xs-6 col-sm-6 col-md-6">
     <div class="form-group">
         <strong>Gender:</strong>

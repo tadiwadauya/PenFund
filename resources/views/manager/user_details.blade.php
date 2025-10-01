@@ -34,7 +34,7 @@
 </table>
 
 {{-- KEY TASK --}}
-    <a href="{{ route('targets.create') }}" class="btn btn-primary ml-auto">Add New Key Task</a>
+    
     <h3>KEY TASK</h3>
     <table class="table table-bordered">
     <thead>
@@ -77,7 +77,6 @@
 
     {{-- Objectives --}}
     <h3>OBJECTIVES</h3>
-    <a href="{{ route('objectives.create') }}" class="btn btn-primary mb-2">Add Objective</a>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -108,7 +107,7 @@
 
     {{-- Initiatives --}}
     <h3>Task and Targets</h3>
-    <a href="{{ route('initiatives.create') }}" class="btn btn-primary mb-2">Add Action</a>
+    
     <table class="table table-bordered">
         <thead>
             <tr>

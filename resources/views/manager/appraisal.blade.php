@@ -329,9 +329,12 @@
 @if($latestAuth && $latestAuth->status === 'Pending')
     {{-- Approve Button --}}
     <form method="POST" action="{{ route('manager.appraisals.approve', [$user->id, $purposes->first()->period_id ?? 1]) }}" style="display:inline;">
-        @csrf
-        <button type="submit" class="btn btn-success">Authorize</button>
-    </form>
+    @csrf
+    <input type="hidden" name="total_self_label" value="{{ $totalSelfLabel }}">
+    <input type="hidden" name="total_assessor_label" value="{{ $totalAssessorLabel }}">
+    <button type="submit" class="btn btn-success">Authorize</button>
+</form>
+
 
     {{-- Reject Button (Triggers Modal) --}}
     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal">

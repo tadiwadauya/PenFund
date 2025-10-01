@@ -14,13 +14,11 @@
                 <div class="row">
                     <div class="col-lg-12 margin-tb">
                         <div class="pull-left">
-                            <h1>All Purposes</h1>
+                            <h1>My Periods</h1>
                         </div>
                         <div class="pull-right">
                             <a href="{{ route('mypurpose.create') }}" class="btn btn-primary ml-auto">Create New Purpose</a>
-                            <a href="{{ url('myobjective') }}" class="btn btn-info ml-auto">My Objectives</a>
-                            <a href="{{ url('myinitiative') }}" class="btn btn-info  ml-auto">Actions to support objectives</a>
-                            <a href="{{ url('myreport') }}" class="btn btn-info ml-auto">My Perfomance Target Report</a>
+                          
                         </div>
                     </div>
                 </div>
@@ -35,7 +33,6 @@
                 <table id="example1" class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>Purpose</th>
             <th>Period</th>
             <th>User</th>
             <th>Created At</th>
@@ -45,8 +42,6 @@
     <tbody>
         @foreach ($purposes as $purpose)
             <tr>
-                <!-- Render HTML safely -->
-                <td>{!! $purpose->purpose !!}</td>
                 <td>{{ $purpose->period->year }}</td>
                 <td>{{ $purpose->user->name }}</td>
                 <td>{{ $purpose->created_at->format('Y-m-d') }}</td>

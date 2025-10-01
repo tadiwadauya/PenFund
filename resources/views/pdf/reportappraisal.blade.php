@@ -160,114 +160,139 @@
     <thead>
         <tr>
             <th style="width:50%;">Key Task</th>
-            <th style="width:25%;">Self Assessment - Rating</th>
-            <th style="width:25%;">Self Assessment - Comment</th>
+            <th style="width:10%;">Self Rating</th>
+            <th style="width:15%;">Self Comment</th>
+            <th style="width:10%;">Assessor Rating</th>
+            <th style="width:15%;">Assessor Comment</th>
         </tr>
     </thead>
     <tbody>
         @php
             $ratingMap = [6=>'A1',5=>'A2',4=>'B1',3=>'B2',2=>'C1',1=>'C2'];
-            $totalRating = 0;
-            $ratingCount = 0;
+
+            $selfTotal = 0; $selfCount = 0;
+            $assessorTotal = 0; $assessorCount = 0;
         @endphp
 
         @forelse($objectives as $objective)
             @php
                 $initiatives = $objective->initiatives;
                 $initiativeList = $initiatives->pluck('initiative')->implode('<br>') ?: '-';
+                $target = $objective->target;
             @endphp
 
             <tr>
-                {{-- Key Task with initiatives --}}
                 <td>
-                    <strong>{{ $objective->target->target_name ?? '-' }}</strong><br>
+                    <strong>{{ $target->target_name ?? '-' }}</strong><br>
                     <small>{!! $initiativeList !!}</small>
                 </td>
 
-                {{-- Self Rating --}}
-                <td>
-                    {{ $objective->target->self_rating ? $ratingMap[$objective->target->self_rating] : 'Not Rated' }}
-                </td>
+                {{-- Self --}}
+                <td>{{ $target && $target->self_rating ? $ratingMap[$target->self_rating] : 'Not Rated' }}</td>
+                <td>{{ $target->self_comment ?? '-' }}</td>
 
-                {{-- Self Comment --}}
-                <td>{{ $objective->target->self_comment ?? '-' }}</td>
-
-                {{-- Accumulate rating for overall --}}
-                @php
-                    if($objective->target->self_rating) {
-                        $totalRating += $objective->target->self_rating;
-                        $ratingCount++;
-                    }
-                @endphp
+                {{-- Assessor --}}
+                <td>{{ $target && $target->assessor_rating ? $ratingMap[$target->assessor_rating] : 'Not Rated' }}</td>
+                <td>{{ $target->assessor_comment ?? '-' }}</td>
             </tr>
+
+            @php
+                if($target && $target->self_rating) {
+                    $selfTotal += $target->self_rating;
+                    $selfCount++;
+                }
+                if($target && $target->assessor_rating) {
+                    $assessorTotal += $target->assessor_rating;
+                    $assessorCount++;
+                }
+            @endphp
         @empty
             <tr>
-                <td colspan="3">&nbsp;No Objectives Available</td>
+                <td colspan="5">&nbsp;No Objectives Available</td>
             </tr>
         @endforelse
 
-        {{-- Overall Rating --}}
+        {{-- Overall Section Rating --}}
         @php
-            $overall = $ratingCount > 0 ? $totalRating / $ratingCount : null;
-            $overallLabel = $overall ? $ratingMap[(int) round($overall)] : 'N/A';
+            $selfOverall = $selfCount > 0 ? $ratingMap[(int) round($selfTotal / $selfCount)] : 'N/A';
+            $assessorOverall = $assessorCount > 0 ? $ratingMap[(int) round($assessorTotal / $assessorCount)] : 'N/A';
         @endphp
-        <tr style="font-weight:bold; background-color:#f1f1f1;">
-            <td>Overall Rating</td>
-            <td>{{ $overallLabel }}</td>
-            <td>&nbsp;</td>
+        <tr style="font-weight:bold; background-color:#f9f9f9;">
+            <td>Overall Section Rating</td>
+            <td>{{ $selfOverall }}</td>
+            <td></td>
+            <td>{{ $assessorOverall }}</td>
+            <td></td>
+        </tr>
+
+       
         </tr>
     </tbody>
 </table>
 
 
 
+
+
+
 @foreach($sections as $section)
     <h4 class="mt-4">Section: {{ $section->name }}</h4>
-    <table class="table table-bordered mb-4" style="width:100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background-color:#d6d6d6;">
-                <th style="width:40%;">Task</th>
-                <th style="width:30%;">Self Assessment - Rating</th>
-                <th style="width:30%;">Self Assessment - Rating Comment</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($section->tasks as $task)
-                @php 
-                    $rating = $task->ratings->first(); 
-                    $selfRatingLabel = $rating ? $gradeFromNumber($rating->self_rating) : '-';
-                    $selfComment = $rating ? $rating->self_comment : '-';
-                @endphp
-                <tr>
-                    <td>{{ $task->name }}</td>
-                    <td>{{ $selfRatingLabel }}</td>
-                    <td>{{ $selfComment }}</td>
-                </tr>
-            @endforeach
+    <table border="1" cellspacing="0" cellpadding="5" width="100%">
+    <thead>
+        <tr style="background-color: #f2f2f2; font-weight: bold;">
+        <th style="width: 50px;">Task</th>
+            <th style="width: 10px;">Self Rating</th>
+            <th style="width: 15px;">Self Comment</th>
+            <th style="width: 10px;">Assessor Rating</th>
+            <th style="width: 15px;">Assessor Comment</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php
+            $selfTotal = 0; $selfCount = 0;
+            $assessorTotal = 0; $assessorCount = 0;
+        @endphp
 
-            {{-- Overall Section Rating --}}
-            @php
-                $overallSection = collect($section->tasks)->map(function($task){
-                    $rating = $task->ratings->first();
-                    if ($rating) {
-                        return collect([
-                            $rating->self_rating, 
-                            $rating->assessor_rating, 
-                            $rating->reviewer_rating
-                        ])->filter()->avg();
-                    }
-                    return null;
-                })->filter()->avg();
-
-                $overallSectionLabel = $overallSection ? $gradeFromNumber($overallSection) : '-';
+        @foreach($section->tasks as $task)
+            @php 
+                $rating = $task->ratings->first(); 
             @endphp
-            <tr style="background-color:#f2f2f2; font-weight:bold;">
-                <td>Overall Rating for Section {{ $section->name }}</td>
-                <td>{{ $overallSectionLabel }}</td>
-                <td>&nbsp;</td>
+            <tr>
+                <td>{{ $task->name }}</td>
+                <td>{{ $rating && $rating->self_rating ? $gradeFromNumber($rating->self_rating) : '-' }}</td>
+                <td>{{ $rating->self_comment ?? '-' }}</td>
+                <td>{{ $rating && $rating->assessor_rating ? $gradeFromNumber($rating->assessor_rating) : '-' }}</td>
+                <td>{{ $rating->assessor_comment ?? '-' }}</td>
             </tr>
-        </tbody>
-    </table>
+
+            @php
+                if ($rating && $rating->self_rating) {
+                    $selfTotal += $rating->self_rating;
+                    $selfCount++;
+                }
+                if ($rating && $rating->assessor_rating) {
+                    $assessorTotal += $rating->assessor_rating;
+                    $assessorCount++;
+                }
+            @endphp
+        @endforeach
+
+        {{-- Overall row --}}
+        @php
+            $selfOverall = $selfCount > 0 ? $gradeFromNumber(round($selfTotal / $selfCount)) : 'N/A';
+            $assessorOverall = $assessorCount > 0 ? $gradeFromNumber(round($assessorTotal / $assessorCount)) : 'N/A';
+        @endphp
+
+        <tr style="font-weight:bold; background-color:#f9f9f9;">
+            <td>Overall Section Rating</td>
+            <td>{{ $selfOverall }}</td>
+            <td></td>
+            <td>{{ $assessorOverall }}</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
 @endforeach
 
 
@@ -322,27 +347,39 @@
 <h3>SECTION 4</h3>
 <h5>Summary Ratings for Period End Performance Review <small>(Data brought forward from previous sections)</small></h5>
 <p>Note final ratings used for the performance notching on pay scales or bonuses will be those of the reviewer, and will be subject to the approval of the Human Resources Department.</p>
-
 <table style="width:100%; border-collapse: collapse;" border="1">
     <thead style="background-color:#d6d6d6;">
         <tr>
             <th>Balanced Scorecard Perspective</th>
-            <th>Overall Ratings of Staff member being Assessed</th>
+            <th>Staff Member Rating</th>
+            <th>Assessor Rating</th>
+            <th>Reviewer Rating</th>
+            <th>Reviewer Comments</th>
         </tr>
     </thead>
     <tbody>
         @foreach($sectionRatings as $section)
         <tr>
             <td style="padding:6px;">{{ $section['name'] }}</td>
-            <td style="padding:6px;">{{ $section['label'] }}</td>
+            <td style="padding:6px;">{{ $section['staff_label'] ?? '-' }}</td>
+            <td style="padding:6px;">{{ $section['assessor_label'] ?? '-' }}</td>
+            <td style="padding:6px;">{{ $section['reviewer_label'] ?? '-' }}</td>
+            <td style="padding:6px;">{{ $section['reviewer_comment'] ?? '-' }}</td>
         </tr>
         @endforeach
+
+        {{-- Totals --}}
         <tr style="font-weight:bold; background-color:#f1f1f1;">
             <td>Total Performance Notches</td>
-            <td>{{ $totalPerformanceNotchesLabel }}</td>
+            <td>{{ $totalPerformanceNotchesStaff ?? 'N/A' }}</td>
+            <td>{{ $totalPerformanceNotchesAssessor ?? 'N/A' }}</td>
+            <td>{{ $totalPerformanceNotchesReviewer ?? 'N/A' }}</td>
+            <td>-</td>
         </tr>
     </tbody>
 </table>
+
+
 
 
 
@@ -351,7 +388,7 @@
 <table style="width: 100%; margin-top: 30px;">
     <tr>
         <!-- Left side -->
-        <td style="width: 50%; text-align: left; vertical-align: bottom;">
+        <td style="width: 33.3%; text-align: left; vertical-align: bottom;">
             <p>Incumbent’s Electronic Signature</p>
            
 
@@ -368,8 +405,8 @@
         </td>
 
         <!-- Right side -->
-        <td style="width: 50%; text-align: right; vertical-align: bottom;">
-            <p>Superior’s Electronic Signature</p>
+        <td style="width: 33.3%; text-align: right; vertical-align: bottom;">
+            <p>Assessor’s  Electronic Signature</p>
             @foreach($superiors as $superior)
                 <p><strong>{{ $superior->name }}</strong></p>
             @endforeach
@@ -378,6 +415,19 @@
             @if($authorisations->first())
                 {{ \Carbon\Carbon::parse($authorisations->first()->updated_at)->format('d-m-Y') }}
             @endif
+        </td>
+
+        <td style="width: 33.3%; text-align: right; vertical-align: bottom;">
+            <p>Reviewer’s Electronic signature </p>
+            <br>
+            <!-- @foreach($superiors as $superior)
+                <p></p>
+            @endforeach -->
+            <p>__________________________</p>
+            <label>Date:</label>
+            <!-- @if($authorisations->first())
+                {{ \Carbon\Carbon::parse($authorisations->first()->updated_at)->format('d-m-Y') }}
+            @endif -->
         </td>
     </tr>
 </table>

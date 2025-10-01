@@ -110,6 +110,12 @@ public function saveAll(Request $request)
         if (array_key_exists('assessor_comment', $data)) {
             $rating->assessor_comment = $data['assessor_comment'];
         }
+        if (array_key_exists('reviewer_rating', $data)) {
+            $rating->reviewer_rating = $data['reviewer_rating'];
+        }
+        if (array_key_exists('reviewer_comment', $data)) {
+            $rating->reviewer_comment = $data['reviewer_comment'];
+        }
 
         $rating->save();
     }

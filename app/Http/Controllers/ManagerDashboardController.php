@@ -15,7 +15,9 @@ use App\Models\Authorisation;
 use App\Models\EvaluationSection;
 use App\Models\UserStrength;
 use App\Models\UserLearningArea;
+use App\Models\PerformanceSummary;
 use Illuminate\Http\Request;
+
 
 class ManagerDashboardController extends Controller
 {
@@ -75,22 +77,28 @@ class ManagerDashboardController extends Controller
         return view('manager.dashboardap', compact('managedUsers', 'period'));
     }
     
-    
     public function reviewer()
     {
         $user = auth()->user();
     
-        // ✅ Get all users supervised by the logged-in user
-        $managedUsersQuery = User::where('supervisor_id', $user->id)
-            ->where('id', '!=', $user->id); // exclude self just in case
+        // ✅ Only users assigned as this user's reviewees
+        $managedUsers = $user->reviewees()
+            ->whereHas('authorisations', function ($query) {
+                $query->where('status', 'Authorized');
+            })
+            ->get();
     
-        // ✅ Only include users who HAVE authorisations with "Authorized" status
-        $managedUsers = $managedUsersQuery->whereHas('authorisations', function ($query) {
-            $query->where('status', 'Authorized');
-        })->get();
+        // ✅ If no managed users, block access
+        if ($managedUsers->isEmpty()) {
+            abort(403, 'You are not assigned as a reviewer for any staff.');
+        }
     
-        return view('manager.reviewerdash', compact('managedUsers'));
+        // ✅ Get the current active period
+        $period = Period::latest()->first();
+    
+        return view('manager.reviewerdash', compact('managedUsers', 'period'));
     }
+    
     
 
 
@@ -110,43 +118,72 @@ class ManagerDashboardController extends Controller
 
 
 
-    public function authorisation(User $user, $periodId)
-    {
-        $authorisation = Authorisation::where('user_id', $user->id)
-                                      ->where('period_id', $periodId)
-                                      ->firstOrFail();
-    
-        $authorisation->update([
-            'status' => 'Authorized',
-            'authorised_by' => auth()->id(), // Set the approver
-        ]);
-    
-        return redirect()->route('manager.appraisal.show', ['user' => $user->id])
-                         ->with('success', 'User approved successfully.');
-    }
-    
 
-    public function review(User $user, $periodId)
-    {
 
-        $request->validate([
-            'reviewercomment' => 'required|string|max:1000',
-        ]);
+public function authorisation(User $user, $periodId)
+{
+    $authorisation = Authorisation::where('user_id', $user->id)
+                                  ->where('period_id', $periodId)
+                                  ->firstOrFail();
 
-        $authorisation = Authorisation::where('user_id', $user->id)
-                                      ->where('period_id', $periodId)
-                                      ->firstOrFail();
+    // Update the authorisation record
+    $authorisation->update([
+        'status' => 'Authorized',
+        'authorised_by' => auth()->id(),
+    ]);
+
+    // Save Performance Summary (using hidden inputs from the form)
+    PerformanceSummary::updateOrCreate(
+        [
+            'user_id' => $user->id,
+            'period_id' => $periodId,
+        ],
+        [
+            'total_self_label' => request()->input('total_self_label'),
+            'total_assessor_label' => request()->input('total_assessor_label'),
+        ]
+    );
+
+    return redirect()->route('manager.appraisal.show', [
+        'user'   => $user->id,
+        'period' => $periodId,
+    ])->with('success', 'User approved successfully and performance summary saved.');
     
-        $authorisation->update([
-            'status' => 'Reviewed',
-            'reviewercomment' => $request->reviewercomment,
-            'reviewed_by' => auth()->id(), // Set the approver
-        ]);
-    
-        return redirect()->route('manager.review.show', ['user' => $user->id])
-                         ->with('success', 'User reviewed successfully.');
-    }
+}
 
+public function reviewed(User $user, $periodId)
+{
+    $authorisation = Authorisation::where('user_id', $user->id)
+                                  ->where('period_id', $periodId)
+                                  ->firstOrFail();
+
+    // Update the authorisation record
+    $authorisation->update([
+        'status' => 'Reviewed',
+        'reviewed_by' => auth()->id(),
+    ]);
+
+    // Save Performance Summary (reviewer)
+    PerformanceSummary::updateOrCreate(
+        [
+            'user_id' => $user->id,
+            'period_id' => $periodId,
+        ],
+        [
+            'total_self_label' => request()->input('total_self_label'),
+            'total_assessor_label' => request()->input('total_assessor_label'),
+            'total_reviewer_label' => request()->input('total_reviewer_label'),
+        ]
+    );
+
+    return redirect()->route('manager.reviewer.show', [
+        'user'   => $user->id,
+        'period' => $periodId,
+    ])->with('success', 'User reviewed successfully and performance summary saved.');
+}
+
+
+    
 
     
 
@@ -185,7 +222,7 @@ public function reviewreject(Request $request, User $user, $periodId)
         'reviewercomment' => $request->comment,
     ]);
 
-    return redirect()->route('manager.appraisal.show', ['user' => $user->id])
+    return redirect()->route('manager.reviewers.show', ['user' => $user->id])
                      ->with('error', 'User rejected with comment.');
 }
 
@@ -372,7 +409,7 @@ public function apshow(User $user, $periodId)
 
     $totalSelfLabel = count($sectionAverages) ? $this->gradeFromNumber(array_sum($sectionAverages)/count($sectionAverages)) : '-';
     $totalAssessorLabel = count($sectionAssessorAvgs) ? $this->gradeFromNumber(array_sum($sectionAssessorAvgs)/count($sectionAssessorAvgs)) : '-';
-
+    
     return view('manager.appraisal', compact(
         'user','period','purposes','objectives','initiatives','authorisations',
         'sections','sectionRatingsForMyRatings','selfStrengths','selfLearning',
@@ -382,6 +419,128 @@ public function apshow(User $user, $periodId)
     return $this->gradeFromNumber($num);
 });
 }
+
+public function reviewershow(User $user, $periodId)
+{
+    $authUser = auth()->user();
+    $period = Period::findOrFail($periodId);
+
+    $purposes = Purpose::with('period')
+        ->where('user_id', $user->id)
+        ->where('period_id', $periodId)
+        ->get();
+
+    $objectives = Objective::with(['period', 'target'])
+        ->where('user_id', $user->id)
+        ->where('period_id', $periodId)
+        ->get();
+
+    $initiatives = Initiative::with(['period', 'target', 'objective'])
+        ->where('user_id', $user->id)
+        ->where('period_id', $periodId)
+        ->get();
+
+    $authorisations = Authorisation::with('period')
+        ->where('user_id', $user->id)
+        ->where('period_id', $periodId)
+        ->get();
+
+    // Load sections with ratings
+    $sections = \App\Models\EvaluationSection::with([
+        'tasks.ratings' => fn($q) => $q->where('user_id', $user->id)
+    ])->get();
+
+    // My Ratings
+    $sectionRatingsForMyRatings = [];
+    foreach ($sections as $section) {
+        $avgSelf = collect($section->tasks)
+            ->map(fn($task) => $task->ratings->first()?->self_rating)
+            ->filter()
+            ->avg();
+
+        $sectionRatingsForMyRatings[] = [
+            'section' => $section,
+            'avgSelf' => $avgSelf,
+            'label' => $avgSelf !== null ? $this->gradeFromNumber($avgSelf) : '-',
+        ];
+    }
+
+    // Strengths & learning areas
+    $selfStrengths = UserStrength::where('user_id', $user->id)->where('type', 'self')->get();
+    $selfLearning = UserLearningArea::where('user_id', $user->id)->where('type', 'self')->get();
+    $assessorStrengths = UserStrength::where('user_id', $user->id)->where('type', 'assessor')->get();
+    $assessorLearning = UserLearningArea::where('user_id', $user->id)->where('type', 'assessor')->get();
+
+    // ================== OVERALL SUMMARY ==================
+    $sectionRatings = [];
+    $sectionAverages = [];
+    $sectionAssessorAvgs = [];
+    $sectionReviewerAvgs = [];
+
+    foreach ($sections as $section) {
+        $overallSelf = collect($section->tasks)->map(fn($t) => $t->ratings->first()?->self_rating)->filter()->avg();
+        $overallAssessor = collect($section->tasks)->map(fn($t) => $t->ratings->first()?->assessor_rating)->filter()->avg();
+        $overallReviewer = collect($section->tasks)->map(fn($t) => $t->ratings->first()?->reviewer_rating)->filter()->avg();
+
+        // Combine reviewer comments for this section
+        $reviewerComments = collect($section->tasks)
+            ->map(fn($t) => $t->ratings->first()?->reviewer_comment)
+            ->filter()
+            ->implode('; ');
+
+        $sectionRatings[] = [
+            'name' => $section->name,
+            'average' => $overallSelf,
+            'label' => $overallSelf !== null ? $this->gradeFromNumber($overallSelf) : '-',
+            'assessor_average' => $overallAssessor,
+            'assessor_label' => $overallAssessor !== null ? $this->gradeFromNumber($overallAssessor) : '-',
+            'reviewer_average' => $overallReviewer,
+            'reviewer_label' => $overallReviewer !== null ? $this->gradeFromNumber($overallReviewer) : '-',
+            'reviewer_comments' => $reviewerComments ?: '-',
+        ];
+
+        if ($overallSelf !== null) $sectionAverages[] = $overallSelf;
+        if ($overallAssessor !== null) $sectionAssessorAvgs[] = $overallAssessor;
+        if ($overallReviewer !== null) $sectionReviewerAvgs[] = $overallReviewer;
+    }
+
+    $totalSelfLabel = count($sectionAverages)
+        ? $this->gradeFromNumber(array_sum($sectionAverages) / count($sectionAverages))
+        : '-';
+
+    $totalAssessorLabel = count($sectionAssessorAvgs)
+        ? $this->gradeFromNumber(array_sum($sectionAssessorAvgs) / count($sectionAssessorAvgs))
+        : '-';
+
+    $totalReviewerLabel = count($sectionReviewerAvgs)
+        ? $this->gradeFromNumber(array_sum($sectionReviewerAvgs) / count($sectionReviewerAvgs))
+        : '-';
+
+    // ================== RETURN VIEW ==================
+    return view('manager.reviewer', compact(
+        'user',
+        'period',
+        'purposes',
+        'objectives',
+        'initiatives',
+        'authorisations',
+        'sections',
+        'sectionRatingsForMyRatings',
+        'selfStrengths',
+        'selfLearning',
+        'assessorStrengths',
+        'assessorLearning',
+        'sectionRatings',
+        'totalSelfLabel',
+        'totalAssessorLabel',
+        'totalReviewerLabel'
+    ))->with('gradeFromNumber', function ($num) {
+        return $this->gradeFromNumber($num);
+    });
+}
+
+
+
 
 /**
  * Convert numeric average to grade label.
@@ -401,40 +560,6 @@ private function gradeFromNumber($num)
 
         
         
-
-           //departmental show details with inline edit and authorisation
-           public function reviewershow(User $user)
-           {
-               // Ensure logged-in manager can view this user
-               $authUser = auth()->user();
-           
-               // TODO: add department/section authorization if needed
-           
-               $purposes = Purpose::with('period')
-                                  ->where('user_id', $user->id)
-                                  ->get();
-           
-               $objectives = Objective::with(['period', 'target'])
-                                      ->where('user_id', $user->id)
-                                      ->get();
-           
-               $initiatives = Initiative::with(['period', 'target', 'objective'])
-                                        ->where('user_id', $user->id)
-                                        ->get();
-           
-               $authorisations = Authorisation::with('period')
-                                              ->where('user_id', $user->id)
-                                              ->get();
-           
-               return view('manager.reviewer', compact(
-                   'user',
-                   'purposes',
-                   'objectives',
-                   'initiatives',
-                   'authorisations'
-               ));
-           }
-
 
 
            public function saveAssessorRatings(Request $request)
@@ -461,6 +586,32 @@ private function gradeFromNumber($num)
            
                return redirect()->back()->with('success', 'Assessor ratings saved successfully!');
            }
+
+
+           public function saveReviewerRatings(Request $request)
+           {
+               $ratingsData = $request->input('ratings', []);
+               $userId = $request->input('user_id'); // The user being rated
+           
+               foreach ($ratingsData as $taskId => $data) {
+                   $rating = \App\Models\Rating::firstOrNew([
+                       'task_id' => $taskId,
+                       'user_id' => $userId,
+                   ]);
+           
+                   // Only update assessor fields
+                   if (isset($data['reviewer_rating'])) {
+                       $rating->reviewer_rating = $data['reviewer_rating'];
+                   }
+                   if (isset($data['reviewer_comment'])) {
+                       $rating->reviewer_comment = $data['reviewer_comment'];
+                   }
+           
+                   $rating->save();
+               }
+           
+               return redirect()->back()->with('success', 'Reviewer ratings saved successfully!');
+           }
            
 
 public function updateSelf(Request $request, Rating $rating)
@@ -478,6 +629,27 @@ public function updateSelf(Request $request, Rating $rating)
     $rating->update([
         'assessor_rating' => $request->assessor_rating,
         'assessor_comment' => $request->assessor_comment,
+    ]);
+
+    return redirect()->back()->with('success', 'Rating updated successfully!');
+}
+
+
+public function revupdateSelf(Request $request, Rating $rating)
+{
+    // Ensure the logged-in user can only update their own rating
+    if ($rating->user_id !== auth()->id()) {
+        return redirect()->back()->with('error', 'Unauthorized');
+    }
+
+    $request->validate([
+        'reviewer_rating' => 'nullable|integer|min:1|max:6',
+        'reviewer_comment' => 'nullable|string|max:1000',
+    ]);
+
+    $rating->update([
+        'reviewer_rating' => $request->reviewer_rating,
+        'reviewer_comment' => $request->reviewer_comment,
     ]);
 
     return redirect()->back()->with('success', 'Rating updated successfully!');

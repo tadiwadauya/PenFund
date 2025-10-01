@@ -25,7 +25,6 @@ use App\Http\Controllers\StrengthLearningController;
 
 
 
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -52,6 +51,16 @@ Route::get('/mypurpose', [ContractController::class, 'mypurpose'])->name('purpos
 
 
 
+Route::prefix('mypurpose')->group(function () {
+    Route::get('/', [UserPurposeController::class, 'index'])->name('mypurpose.index');
+    Route::get('/create', [UserPurposeController::class, 'create'])->name('mypurpose.create');
+    Route::post('/', [UserPurposeController::class, 'store'])->name('mypurpose.store');
+    Route::get('/{purpose}', [UserPurposeController::class, 'show'])->name('mypurpose.show');
+    Route::get('/{purpose}/edit', [UserPurposeController::class, 'edit'])->name('mypurpose.edit');
+    Route::put('/{purpose}', [UserPurposeController::class, 'update'])->name('mypurpose.update');
+    Route::delete('/{purpose}', [UserPurposeController::class, 'destroy'])->name('mypurpose.destroy');
+});
+
 
 Route::middleware(['auth'])->group(function () {
 
@@ -59,10 +68,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/manager/users', [ManagerDashboardController::class, 'index'])->name('manager.users.index');
      Route::get('/manager/users/{user}/{periodId}', [ManagerDashboardController::class, 'show'])
     ->name('manager.user.show');
+
+
+
     //view users to be approver appraisal with inline edit 
 
     Route::get('/manager/appraisal/{user}/{period}', [ManagerDashboardController::class, 'apshow'])
     ->name('manager.appraisal.show');
+
+
+    Route::get('/manager/reviewers/{user}/{period}', [ManagerDashboardController::class, 'reviewershow'])
+    ->name('manager.reviewer.show');
+  
+
+//perfomance summaries
+Route::get('/performance-summaries', [PerformanceApraisalController::class, 'performanceSummaries'])
+    ->name('manager.performance_summaries.index');
+
 
 
     // Approved Users
@@ -71,8 +93,6 @@ Route::middleware(['auth'])->group(function () {
     ->name('manager.user.target');
 
 
-        //view users to be review appraisal with inline edit 
-    Route::get('/manager/reviewers/{user}', [ManagerDashboardController::class, 'reviewershow'])->name('manager.reviewer.show');
 
     
     // New approval routes
@@ -82,7 +102,10 @@ Route::middleware(['auth'])->group(function () {
 
 // New athourize routes
 Route::post('/manager/appraisals/{user}/approve/{period}', [ManagerDashboardController::class, 'authorisation'])->name('manager.appraisals.approve');
+Route::post('/manager/reviewers/{user}/{period}/review', [ManagerDashboardController::class, 'reviewed'])
+    ->name('manager.reviewers.review');
 Route::post('/manager/appraisals/{user}/reject/{period}', [ManagerDashboardController::class, 'apreject'])->name('manager.appraisals.reject');
+Route::post('/manager/reviewers/{user}/reject/{period}', [ManagerDashboardController::class, 'reviewreject'])->name('manager.reviewers.reject');
 
 
 //reviewing routes
@@ -94,8 +117,17 @@ Route::post('/manager/reviewers/{user}/reject/{period}', [ManagerDashboardContro
 
     Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
     Route::get('/manager/dashboardap', [ManagerDashboardController::class, 'appraisal'])->name('manager.dashboardap');
-
     Route::get('/manager/reviewerdash', [ManagerDashboardController::class, 'reviewer'])->name('manager.reviewerdash');
+   
+            //view users to be review appraisal with inline edit 
+    // Route::get('/manager/reviewers/{user}', [ManagerDashboardController::class, 'reviewershow'])->name('manager.reviewer.show');
+
+    // Route::get('/manager/reviewers/{user}/{period}', [ManagerDashboardController::class, 'reviewershow'])
+    // ->name('manager.reviewer.show');
+
+
+
+
     
     Route::post('/report/generate', [ReportController::class, 'generate'])->name('report.generate');
     Route::post('/appraisalreport/apgenerate', [ReportController::class, 'apgenerate'])->name('appraisalreport.apgenerate');
@@ -151,8 +183,11 @@ Route::post('ratings/save-all', [PerformanceApraisalController::class, 'saveAll'
 // routes/web.php
 
 // For manager dashboard only - saving assessor ratings
-Route::post('manager/ratings/save-assessor', [ManagerDashboardController::class, 'saveAssessorRatings'])
+Route::post('manager/ratings/save-reviewer', [ManagerDashboardController::class, 'saveAssessorRatings'])
     ->name('manager.ratings.saveAssessor');
+
+    Route::post('manager/ratings/save-reviewer', [ManagerDashboardController::class, 'saveReviewerRatings'])
+    ->name('manager.ratings.saveReviewer');
 
 
 //strength
@@ -194,6 +229,9 @@ Route::delete('/assessor/learning/{id}/delete', [StrengthLearningController::cla
 
     Route::patch('/targets/{id}/assessor-update-inline', [TargetController::class, 'assessorUpdateInline'])
     ->name('targets.assessorUpdateInline');
+
+    Route::patch('/targets/{id}/reviewer-update-inline', [TargetController::class, 'reviewerUpdateInline'])
+    ->name('targets.reviewerUpdateInline');
     
      // Manager Actions to support objectives Routes
         // Manager Initiative Routes

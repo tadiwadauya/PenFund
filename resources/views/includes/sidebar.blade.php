@@ -46,7 +46,7 @@
             <a href="#" class="nav-link {{ Request::is('periods') || Request::is('targets') || Request::is('purposes/mypurpose')|| Request::is('my/performance') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
-                     Task
+                     Perfomance Targets
                     <i class="fas fa-angle-left right"></i>
      
                 </p>
@@ -63,7 +63,7 @@
                 @endif
 @endauth
 <li class="nav-item">
-                    <a href="{{ url('/purposes/mypurpose/create')}}" class="nav-link {{ Request::is('purposes/mypurpose')  ? 'active' : '' }}" >
+                    <a href="{{ url('/mypurpose/create')}}" class="nav-link {{ Request::is('purposes/mypurpose')  ? 'active' : '' }}" >
                         <i class="far fa-circle nav-icon"></i>
                         <p>Perfomance Period </p>
                     </a>
@@ -73,7 +73,7 @@
                 <li class="nav-item">
                     <a href="{{ url('/my/performance')}}" class="nav-link {{ Request::is('my/performance')  ? 'active' : '' }}" >
                         <i class="far fa-circle nav-icon"></i>
-                        <p>My Task</p>
+                        <p>My Targets</p>
                     </a>
                 </li>
 
@@ -89,6 +89,7 @@
                         <p>Department Targets</p>
                     </a>
                 </li>
+
               
 </ul>
 
@@ -124,8 +125,24 @@
                     </a>
                 </li>
               
+                <li class="nav-item">
+                    <a href="{{ url('/manager/reviewerdash')}}" class="nav-link {{ Request::is('manager/reviewerdash')  ? 'active' : '' }}" >
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Review Apraisal</p>
+                    </a>
+                </li>
+                @auth
+                @if(auth()->user()->is_admin == 1)
+                <li class="nav-item">
+                    <a href="{{ url('/performance-summaries')}}" class="nav-link {{ Request::is('performance-summaries')  ? 'active' : '' }}" >
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Perfomance Summary</p>
+                    </a>
+                </li>
 
 
+                @endif
+@endauth
 
 
 

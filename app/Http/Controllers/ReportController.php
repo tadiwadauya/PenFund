@@ -79,9 +79,8 @@ class ReportController extends Controller
         'superiors'
     ));
 
-    return $pdf->download('performance_contract.pdf');
+    return $pdf->download('performance_targets.pdf');
 }
-
 public function apgenerate(Request $request)
 {
     $request->validate([
@@ -103,7 +102,7 @@ public function apgenerate(Request $request)
         ->with(['initiatives', 'target'])
         ->get();
 
-    // Flatten initiatives for table
+    // Flatten initiatives
     $initiatives = $objectives->flatMap(function ($objective) {
         return $objective->initiatives->map(function ($initiative) use ($objective) {
             $initiative->target = $objective->target;
@@ -111,7 +110,7 @@ public function apgenerate(Request $request)
         });
     });
 
-    // Fetch approvals and superiors
+    // Fetch approvals
     $authorisations = Authorisation::with('user')
         ->where('user_id', $user->id)
         ->where('period_id', $request->period_id)
@@ -130,7 +129,7 @@ public function apgenerate(Request $request)
         1 => 'C2 - Unacceptable. Well below standard required',
     ];
 
-    // Function to convert numeric rating to grade
+    // Helper function
     $gradeFromNumber = function($num) {
         if ($num >= 5.5) return 'A1';
         if ($num >= 4.5) return 'A2';
@@ -146,35 +145,57 @@ public function apgenerate(Request $request)
         $q->where('user_id', $user->id);
     }])->get();
 
-    // Compute section-level ratings for Balanced Scorecard
+    // Compute section ratings
     $sectionRatings = [];
-    $sectionTotals = [];
+    $staffTotals = []; $assessorTotals = []; $reviewerTotals = [];
+
     foreach ($sections as $section) {
-        $overallSection = collect($section->tasks)->map(function($task){
+        $selfTotal = $selfCount = 0;
+        $assessorTotal = $assessorCount = 0;
+        $reviewerTotal = $reviewerCount = 0;
+        $reviewerComments = [];
+
+        foreach ($section->tasks as $task) {
             $rating = $task->ratings->first();
-            return $rating ? $rating->self_rating : null;
-        })->filter()->avg();
+
+            if ($rating && $rating->self_rating) {
+                $selfTotal += $rating->self_rating;
+                $selfCount++;
+            }
+            if ($rating && $rating->assessor_rating) {
+                $assessorTotal += $rating->assessor_rating;
+                $assessorCount++;
+            }
+            if ($rating && $rating->reviewer_rating) {
+                $reviewerTotal += $rating->reviewer_rating;
+                $reviewerCount++;
+            }
+            if ($rating && $rating->reviewer_comment) {
+                $reviewerComments[] = $rating->reviewer_comment;
+            }
+        }
 
         $sectionRatings[] = [
-            'name' => $section->name,
-            'average' => $overallSection,
-            'label' => $overallSection ? $gradeFromNumber($overallSection) : '-'
+            'name'             => $section->name,
+            'staff_label'      => $selfCount > 0 ? $gradeFromNumber($selfTotal / $selfCount) : 'Not Rated',
+            'assessor_label'   => $assessorCount > 0 ? $gradeFromNumber($assessorTotal / $assessorCount) : 'Not Rated',
+            'reviewer_label'   => $reviewerCount > 0 ? $gradeFromNumber($reviewerTotal / $reviewerCount) : 'Not Rated',
+            'reviewer_comment' => count($reviewerComments) ? implode('; ', $reviewerComments) : '-',
         ];
 
-        if ($overallSection) $sectionTotals[] = $overallSection;
+        if ($selfCount > 0) $staffTotals[] = $selfTotal / $selfCount;
+        if ($assessorCount > 0) $assessorTotals[] = $assessorTotal / $assessorCount;
+        if ($reviewerCount > 0) $reviewerTotals[] = $reviewerTotal / $reviewerCount;
     }
 
-    $totalPerformanceNotches = count($sectionTotals) ? array_sum($sectionTotals)/count($sectionTotals) : null;
-    $totalPerformanceNotchesLabel = $totalPerformanceNotches ? $gradeFromNumber($totalPerformanceNotches) : '-';
+    // Totals
+    $totalPerformanceNotchesStaff    = count($staffTotals) ? $gradeFromNumber(array_sum($staffTotals) / count($staffTotals)) : 'N/A';
+    $totalPerformanceNotchesAssessor = count($assessorTotals) ? $gradeFromNumber(array_sum($assessorTotals) / count($assessorTotals)) : 'N/A';
+    $totalPerformanceNotchesReviewer = count($reviewerTotals) ? $gradeFromNumber(array_sum($reviewerTotals) / count($reviewerTotals)) : 'N/A';
 
-    // Fetch strengths & learning areas
-    $selfStrengths = \App\Models\UserStrength::where('user_id', $user->id)
-        ->where('type', 'self')
-        ->get();
-
-    $selfLearning  = \App\Models\UserLearningArea::where('user_id', $user->id)
-        ->where('type', 'self')
-        ->get();
+    // Strengths & learning
+    $selfStrengths = \App\Models\UserStrength::where('user_id', $user->id)->where('type', 'self')->get();
+    $selfLearning = \App\Models\UserLearningArea::where('user_id', $user->id)->where('type', 'self')->get();
 
     // Generate PDF
     $pdf = PDF::loadView('pdf.reportappraisal', compact(
@@ -188,7 +209,9 @@ public function apgenerate(Request $request)
         'ratingLabels',
         'sections',
         'sectionRatings',
-        'totalPerformanceNotchesLabel',
+        'totalPerformanceNotchesStaff',
+        'totalPerformanceNotchesAssessor',
+        'totalPerformanceNotchesReviewer',
         'gradeFromNumber',
         'selfStrengths',
         'selfLearning'
@@ -196,6 +219,8 @@ public function apgenerate(Request $request)
 
     return $pdf->download("performance_appraisal_{$user->id}_{$period->year}.pdf");
 }
+
+
 
 
 

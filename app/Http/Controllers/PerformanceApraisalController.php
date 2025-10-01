@@ -14,6 +14,7 @@ use App\Models\Authorisation;
 use App\Models\Rating;
 use App\Models\UserStrength;
 use App\Models\UserLearningArea;
+use App\Models\PerformanceSummary;
 
 use Illuminate\Http\Request;
 
@@ -215,4 +216,86 @@ public function saveAll(Request $request)
     }
     return redirect()->back()->with('success', 'All ratings saved successfully!');
 }
+
+public function performanceSummaries()
+{
+    // Get all reviewed summaries
+    $summaries = PerformanceSummary::with(['user', 'period'])
+        ->whereHas('user.authorisations', function ($query) {
+            $query->where('status', 'Reviewed');
+        })
+        ->get();
+
+    // Group summaries by department and section
+    $byDepartment = $summaries->groupBy(fn($s) => $s->user->department ?? 'No Department');
+    $bySection = $summaries->groupBy(fn($s) => $s->user->section ?? 'No Section');
+
+    // Function to convert grade to numeric for averaging
+    $gradeToNumeric = fn($grade) => match($grade) {
+        'A1'=>6, 'A2'=>5, 'B1'=>4, 'B2'=>3, 'C1'=>2, 'C2'=>1, default=>0
+    };
+    $numericToGrade = fn($num) => match(true){
+        $num>=5.5=>'A1',
+        $num>=4.5=>'A2',
+        $num>=3.5=>'B1',
+        $num>=2.5=>'B2',
+        $num>=1.5=>'C1',
+        $num>=0.5=>'C2',
+        default => '-'
+    };
+
+    // Overall department performance
+    $departmentNames = [];
+    $departmentGradesNumeric = [];
+    $departmentGrades = [];
+
+    foreach ($byDepartment as $dept => $deptSummaries) {
+        $avg = collect($deptSummaries)->avg(fn($s)=>$gradeToNumeric($s->total_assessor_label));
+        $departmentNames[] = $dept;
+        $departmentGradesNumeric[] = round($avg,2);
+        $departmentGrades[$dept] = $numericToGrade($avg);
+    }
+
+    // Overall section performance
+    $sectionGrades = [];
+    foreach ($bySection as $section => $secSummaries) {
+        $avg = collect($secSummaries)->avg(fn($s)=>$gradeToNumeric($s->total_assessor_label));
+        $sectionGrades[$section] = $numericToGrade($avg);
+    }
+
+    // Organization performance per period
+    $periods = \App\Models\Period::orderBy('year')->get();
+    $periodLabels = [];
+    $periodValues = [];
+
+    foreach ($periods as $period) {
+        $periodSummaries = PerformanceSummary::with('user')
+            ->where('period_id', $period->id)
+            ->whereHas('user.authorisations', fn($q)=>$q->where('status','Reviewed'))
+            ->get();
+
+        $avg = $periodSummaries->avg(fn($s)=>$gradeToNumeric($s->total_assessor_label));
+        $periodLabels[] = $period->name ?? $period->year;
+        $periodValues[] = round($avg,2);
+    }
+
+    return view('manager.performance_summaries.index', compact(
+        'summaries',
+        'byDepartment',
+        'bySection',
+        'departmentNames',
+        'departmentGradesNumeric',
+        'departmentGrades',
+        'sectionGrades',
+        'periodLabels',
+        'periodValues'
+    ));
+}
+
+
+
+
+
+
+
 }

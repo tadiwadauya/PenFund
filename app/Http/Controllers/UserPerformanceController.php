@@ -45,9 +45,7 @@ class UserPerformanceController extends Controller
             ->whereHas('target') // ✅ only fetch objectives that have a target
             ->get();
 
-            $tasks = Task::where('user_id', $user->id)
-            ->where('period_id', $periodId)
-            ->get();
+
 
             $targets = Target::where('user_id', $user->id)
             ->where('period_id', $periodId)
@@ -66,7 +64,6 @@ class UserPerformanceController extends Controller
             'period',
             'purposes',
             'objectives',
-            'tasks',
             'initiatives',
             'targets',
             'approval'

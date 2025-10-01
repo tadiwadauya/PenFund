@@ -130,7 +130,24 @@ class TargetController extends Controller
         'assessor_rating'  => $request->assessor_rating,
     ]);
 
-    return redirect()->back()->with('success', 'Target updated successfully.');
+    return redirect()->back()->with('success', 'Task updated successfully.');
+}
+
+
+public function reviewerUpdateInline(Request $request, $id)
+{
+    $request->validate([
+        'reviewer_comment' => 'nullable|string|max:1000',
+        'reviewer_rating'  => 'nullable|integer|min:1|max:6',
+    ]);
+
+    $target = Target::findOrFail($id);
+    $target->update([
+        'reviewer_comment' => $request->reviewer_comment,
+        'reviewer_rating'  => $request->reviewer_rating,
+    ]);
+
+    return redirect()->back()->with('success', 'Task updated successfully.');
 }
 
 

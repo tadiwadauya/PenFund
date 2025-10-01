@@ -263,5 +263,47 @@
     });
   });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Department Bar Chart
+    const deptCtx = document.getElementById('deptChart').getContext('2d');
+    new Chart(deptCtx, {
+        type: 'bar',
+        data: {
+            labels: @json($departmentNames),
+            datasets: [{
+                label: 'Departments Rating',
+                data: @json($departmentGradesNumeric),
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero:true, min:0, max:6 } }
+        }
+    });
+
+    // Organization Line Chart
+    const orgCtx = document.getElementById('orgChart').getContext('2d');
+    new Chart(orgCtx, {
+        type: 'line',
+        data: {
+            labels: @json($periodLabels),
+            datasets: [{
+                label: 'Organization  Rating',
+                data: @json($periodValues),
+                backgroundColor: 'rgba(255,99,132,0.2)',
+                borderColor: 'rgba(255,99,132,1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero:true, min:0, max:6 } }
+        }
+    });
+</script>
 </body>
 </html>

@@ -106,5 +106,10 @@ public function learningAreas()
 {
     return $this->hasMany(UserLearningArea::class);
 }
+public function reviewees()
+{
+    return $this->hasMany(User::class, 'reviewer_id');
+}
+
 
 }
